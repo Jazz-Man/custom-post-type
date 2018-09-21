@@ -16,5 +16,16 @@
         "psr-4": {
             "JazzMan\\Post\\": ""
         }
+    },
+    "require-dev": {
+        "johnpbloch/wordpress": "^4.9"
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/wp/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+            "vendor/wp/plugins/{$name}/": ["type:wordpress-plugin"],
+            "vendor/wp/themes/{$name}/": ["type:wordpress-theme"]
+        },
+        "wordpress-install-dir": "vendor/wp"
     }
 }
