@@ -337,13 +337,10 @@ class CustomPostType
                     'action' => 'edit',
                 ], 'post.php'));
                 if (has_post_thumbnail()) {
-                    $thumbnail = get_the_post_thumbnail([
-                        60,
-                        60,
-                    ]);
+                    $thumbnail = get_the_post_thumbnail($post_id, [60, 60]);
                     echo "<a href='$link'>$thumbnail</a>";
                 } else {
-                    $default_icon = esc_url(site_url('/wp-includes/images/crystal/default.png'));
+                    $default_icon = esc_url(includes_url('images/crystal/default.png'));
 
                     echo "<a href='$link'><img src='$default_icon' alt='$post->post_title' /></a>";
                 }
