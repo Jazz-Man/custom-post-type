@@ -79,9 +79,8 @@ class CustomPostType
 
         $this->post_type = sanitize_key($this->post_type_name);
 
-        if ( ! empty($options)) {
-            $this->set_post_type_options($options);
-        }
+        $this->set_post_type_options($options);
+
         add_action('init', [$this, 'register_taxonomies']);
         add_action('init', [$this, 'register_post_type']);
         add_action('init', [$this, 'register_exisiting_taxonomies']);
