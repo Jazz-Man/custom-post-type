@@ -350,7 +350,7 @@ class CustomPostType
     /**
      * @param array $filters
      */
-    public function setFilters(array $filters): void
+    public function setFilters(array $filters = []): void
     {
         $this->filters = $filters;
     }
@@ -495,11 +495,10 @@ class CustomPostType
                 }
                 break;
             default:
-                if (isset($this->populate_columns) && is_array($this->populate_columns)) {
-                    if (isset($this->populate_columns[$column]) && is_callable($this->populate_columns[$column])) {
-                        call_user_func($this->populate_columns[$column], $column, $post);
-                    }
+                if (!empty($this->populate_columns) && !empty($this->populate_columns[$column])){
+                    call_user_func($this->populate_columns[$column], $column, $post);
                 }
+
                 break;
         }
     }

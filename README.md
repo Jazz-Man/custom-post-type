@@ -23,29 +23,6 @@ use JazzMan\Post\CustomPostType;
 $books = new CustomPostType('book');
 ```
 
-The first parameter is the post type name and is required. ideally the post type name is all lowercase and words separated with an underscore `_`.
-
-to be specific about other post types names you can pass an associative array:
-
-`post_type_name` - the name of post type (singular, lowercase, underscores)
-
-`singular` - the singular label of the post type (Book, Person)
-
-`plural` - the plural of the post type (Books, People)
-
-`slug` - the permalink slug for the post type (plural, lowercase, hyphens)
-
-you pass these names through the first parameter as an array like so:
-
-```php
-$people = new CustomPostType(array(
-	'post_type_name' => 'person',
-	'singular' => 'Person',
-	'plural' => 'People',
-	'slug' => 'people'
-));
-```
-
 The optional second parameter is the arguments for the post_type.
 see [WordPress codex](http://codex.wordpress.org/Function_Reference/register_post_type#Parameters) for available options.
 
@@ -74,17 +51,16 @@ $blog = new CustomPostType('post');
 You can add taxonomies easily using the `register_taxonomy()` method like so:
 
 ```php
-$books->register_taxonomy('genres');
+$books->registerTaxonomy('genres');
 ```
 
 this method accepts two arguments, names and options. The taxonomy name is required and can be string (the taxonomy name), or an array of names following same format as post types:
 
 ```php
-$books->register_taxonomy(array(
-	'taxonomy_name' => 'genre',
-	'singular' => 'Genre',
-	'plural' => 'Genres',
-	'slug' => 'genre'
+$books->registerTaxonomy('genres',array(
+	'show_ui'       => true,
+	'query_var'     => true,
+	'rewrite'       => array( 'slug' => 'the_genre' )
 ));
 ```
 
@@ -103,7 +79,7 @@ When you register a taxonomy it is *automagically* added to the admin edit scree
 You can define what filters you want to appear by using the `filters()` method:
 
 ```php
-$books->filters(array('genre'));
+$books->setFilters(array('genre'));
 ```
 
 By passing an array of taxonomy names you can choose the filters that appear and the order they appear in. If you pass an empty array, no drop down filters will appear on the admin edit screen.
@@ -115,12 +91,11 @@ Taxonomies registered with this class are automagically added to the admin edit 
 
 You can add your own custom columns to include what ever value you want, for example with our books post type we will add custom fields for a price and rating.
 
-This class doesn't have any methods for adding custom fields as [Advanced Custom Fields (ACF)](http://advancedcustomfields.com) is way more awesome than anything this class could do!
 
-You can define what columns you want to appear on the admin edit screen with the `columns()` method by passing an array like so:
+You can define what columns you want to appear on the admin edit screen with the `setColumns()` method by passing an array like so:
 
 ```php
-$books->columns(array(
+$books->setColumns(array(
 	'cb' => '<input type="checkbox" />',
 	'title' => __('Title'),
 	'genre' => __('Genres'),
@@ -144,10 +119,10 @@ The key defines the name of the column, the value is the label that appears for 
 
 You will need to create a function to populate a column that isn't *automagically* populated.
 
-You do so with the `populate_column()` method like so:
+You do so with the `setPopulateColumns()` method like so:
 
 ```php
-$books->populate_column('column_name', function($column, $post) {
+$books->setPopulateColumns('column_name', function($column, $post) {
 
 	// your code goes here…
 
@@ -157,9 +132,9 @@ $books->populate_column('column_name', function($column, $post) {
 so we can populate our price column like so:
 
 ```php
-$books->populate_column('price', function($column, $post) {
+$books->setPopulateColumns('price', function($column, $post) {
 
-	echo "£" . get_field('price'); // ACF get_field() function
+	echo "£" . get_post_meta($post->ID,'price',true);
 
 });
 ```
@@ -176,7 +151,7 @@ These are passed to help you populate the column appropriately.
 If it makes sense that column should be sortable by ascending/descending you can define custom sortable columns like so:
 
 ```php
-$books->sortable(array(
+$books->setSortable(array(
 	'column_name' => array('meta_key', true)
 ));
 ```
@@ -195,38 +170,20 @@ By adding the option true value the values will be sorted as integers, if false 
 so for our books example you will use:
 
 ```php
-$books->sortable(array(
-	'price' => array('price', true),
-	'rating' => array('rating', true)
-));
+$books->setSortable([
+    'price'  => ['price', true],
+    'rating' => ['rating', true],
+]);
 ```
 
 ### Menu Icons
 
 #### Dashicons
 
-With WordPress 3.8 comes [dashicons](https://developer.wordpress.org/resource/dashicons/) an icon font you can use with your custom post types. To use simply pass the icon name through the `menu_icon()` method like so:
+With WordPress 3.8 comes [dashicons](https://developer.wordpress.org/resource/dashicons/) an icon font you can use with your custom post types. To use simply pass the icon name through the `setMenuIcon()` method like so:
 
 ```php
-$books->menu_icon("dashicons-book-alt");
+$books->setMenuIcon('dashicons-book-alt');
 ```
 
 For a full list of icons and the class names to use visit [https://developer.wordpress.org/resource/dashicons/](https://developer.wordpress.org/resource/dashicons/)
-
-### Translation
-
-The class is setup for translation, but if you need to set your own textdomain to work with your theme or plugin use the `set_textdomain()` method:
-
-```php
-$books->set_textdomain('your-textdomain');
-```
-
-### Flush Rewrite Rules
-
-You can programmatically recreate the sites rewrite rules with the `flush()` method.
-This is an expensive operation and should be used with caution, see [codex](https://codex.wordpress.org/Function_Reference/flush_rewrite_rules) for more.
-
-```php
-$books->flush();
-```
-
