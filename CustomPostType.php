@@ -12,57 +12,66 @@ use JazzMan\Pluralizer\Pluralizer;
 class CustomPostType
 {
 
-    public $post_type;
-
     /**
-     * @var
+     * @var string
+     */
+    private static $textdomain = 'cpt';
+    /**
+     * @var string
+     */
+    private static $archive_post_type = 'hdptap_cpt_archive';
+    /**
+     * @var bool
+     */
+    private static $add_archive_page = false;
+    /**
+     * @var string
+     */
+    public $post_type;
+    /**
+     * @var string
      */
     public $post_type_name;
     /**
      * @var array
      */
-    private $options;
-    /**
-     * @var
-     */
-    public $exisiting_taxonomies;
-    /**
-     * @var
-     */
-    public $filters;
-    /**
-     * @var
-     */
-    public $custom_populate_columns;
+    private $exisiting_taxonomies;
     /**
      * @var array
      */
-    public $sortable;
+    private $filters;
     /**
-     * @var string
+     * @var array
      */
-    private $singular;
+    private $populate_columns;
     /**
-     * @var string
+     * @var array
      */
-    private $plural;
+    private $sortable;
     /**
-     * @var
+     * @var array
+     */
+    private $post_type_options;
+    /**
+     * @var array
      */
     private $taxonomies;
     /**
-     * @var
+     * @var array
      */
     private $taxonomy_settings;
     /**
-     * @var
+     * @var array
      */
     private $columns;
     /**
      * @var string
      */
-    private $textdomain = 'cpt';
-    private $human_friendly;
+    private $post_type_singular;
+    /**
+     * @var string
+     */
+    private $post_type_plural;
 
     /**
      * CustomPostType constructor.
@@ -73,162 +82,299 @@ class CustomPostType
     public function __construct($post_type_names, array $options = [])
     {
         $this->post_type_name = $post_type_names;
-        $this->human_friendly = $this->get_human_friendly($this->post_type_name);
-        $this->plural         = $this->get_plural();
-        $this->singular       = $this->get_singular();
 
         $this->post_type = sanitize_key($this->post_type_name);
 
-        $this->set_post_type_options($options);
+        $human_friendly = cpt_get_human_friendly($this->post_type_name);
 
-        add_action('init', [$this, 'register_taxonomies']);
-        add_action('init', [$this, 'register_post_type']);
-        add_action('init', [$this, 'register_exisiting_taxonomies']);
-        add_filter("manage_edit-{$this->post_type}_columns", [$this, 'add_admin_columns']);
-        add_action("manage_{$this->post_type}_posts_custom_column", [$this, 'populate_admin_columns'], 10, 2);
-        add_action('restrict_manage_posts', [$this, 'add_taxonomy_filters']);
-        add_filter('post_updated_messages', [$this, 'updated_messages']);
-        add_filter('bulk_post_updated_messages', [$this, 'bulk_updated_messages'], 10, 2);
+        $this->post_type_singular = Pluralizer::singular($human_friendly);
+        $this->post_type_plural   = Pluralizer::plural($human_friendly);
+
+        $this->setPostTypeOptions($options);
+
+        add_action('init', [__CLASS__, 'registerCptArchivePostType']);
+        add_action('registered_post_type', [__CLASS__, 'createArchivePages'], 10, 2);
+        add_action('parent_file', [__CLASS__, 'adminMenuCorrection']);
+        add_action('admin_menu', [__CLASS__, 'addAdminMenuArchivePages'], 99);
+        add_filter('get_the_archive_title', [__CLASS__, 'archiveTitle'], 10, 1);
+        add_filter('get_the_archive_description', [__CLASS__, 'archiveDescription'], 10, 1);
+        add_filter('wp_unique_post_slug', [__CLASS__, 'fixArchivePostTypeSlug'], 10, 6);
+
+        add_action('init', [$this, 'registerTaxonomies']);
+        add_action('init', [$this, 'registerPostType']);
+        add_action('init', [$this, 'registerExisitingTaxonomies']);
+        add_filter("manage_edit-{$this->post_type}_columns", [$this, 'addAdminColumns']);
+        add_action("manage_{$this->post_type}_posts_custom_column", [$this, 'populateAdminColumns'], 10, 2);
+        add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
+        add_filter('post_updated_messages', [$this, 'updatedMessages']);
+        add_filter('bulk_post_updated_messages', [$this, 'bulkUpdatedMessages'], 10, 2);
+
     }
 
     /**
-     * @param string|null $name
+     *
+     * @param string $desc
      *
      * @return string
      */
-    private function get_human_friendly($name = null)
+    public static function archiveDescription(string $desc = '')
     {
-        if (null === $name) {
-            $name = $this->post_type_name;
+        // only proceed if this is a post type archive.
+        if ( ! is_post_type_archive()) {
+            return $desc;
+        }
+        // get the current post type.
+        $current_post_type = get_queried_object()->name;
+
+        // get the post type archive desc for this post type.
+
+        $post_type_archive_desc = cpt_get_post_type_archive_content($current_post_type);
+
+        // if we have a desc.
+
+        if ( ! empty($post_type_archive_desc)) {
+
+            $desc = apply_filters('the_content', $post_type_archive_desc);
         }
 
-        return ucwords(strtolower(str_replace(['-', '_'], ' ', $name)));
+        return $desc;
     }
 
     /**
      *
-     * @param null|string $name
+     * @param string $title
      *
      * @return string
      */
-    private function get_plural($name = null)
+    public static function archiveTitle(string $title = '')
     {
-        if ($name === null) {
-            $name = $this->human_friendly;
+        // only proceed if this is a post type archive.
+        if ( ! is_post_type_archive()) {
+            return $title;
+        }
+        // get the current post type.
+        $current_post_type = get_queried_object()->name;
+        // get the post type archive title for this post type.
+        $post_type_archive_title = cpt_get_post_type_archive_title($current_post_type);
+
+        if ( ! empty($post_type_archive_title)) {
+            return apply_filters('the_title', $post_type_archive_title);
         }
 
-        return Pluralizer::plural($name);
+        return $title;
+    }
+
+    public static function addAdminMenuArchivePages()
+    {
+
+        $post_type_object = get_post_type_object(self::$archive_post_type);
+
+        if ($post_type_object !== null) {
+            /** @var \WP_Post[] $post_types */
+            $post_types = get_posts([
+                'post_type'   => self::$archive_post_type,
+                'post_status' => 'publish',
+                'numberposts' => -1,
+            ]);
+
+
+            if ( ! empty($post_types)) {
+                foreach ($post_types as $post_type) {
+                    $edit_link = sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID);
+
+                    // add the menu item for this post type.
+                    add_submenu_page("edit.php?post_type={$post_type->post_name}",
+                        __('Archive Page', self::$textdomain), __('Archive Page', self::$textdomain), 'edit_posts',
+                        $edit_link, false);
+                }
+            }
+
+        }
     }
 
     /**
-     * @param null|string $name
+     *
+     * @param string $parent_file
      *
      * @return string
      */
-    private function get_singular($name = null)
+    public static function adminMenuCorrection(string $parent_file = '')
     {
-        if ($name === null) {
-            $name = $this->human_friendly;
+        global $current_screen;
+        // if this is a post edit screen for the archive page post type.
+        if ('post' === $current_screen->base && self::$archive_post_type === $current_screen->post_type) {
+            // get the plugin options.
+
+            $post = get_post((int)$_GET['post']);
+
+            // if we have an archive post type returned.
+            if ( ! empty($post)) {
+                // set the parent file to the archive post type.
+                $parent_file = 'edit.php?post_type=' . $post->post_name;
+            }
         }
 
-        return Pluralizer::singular($name);
+        return $parent_file;
+
+    }
+
+    public static function registerCptArchivePostType()
+    {
+        if ( ! post_type_exists(self::$archive_post_type)) {
+            /**
+             * Lets register the conditions post type
+             * post type name is docp_condition
+             */
+
+            $labels = cpt_get_post_type_labels('Archive Pages');
+
+            self::$add_archive_page = false;
+
+            register_post_type(self::$archive_post_type, [
+                'description'         => __('Archive posts associated with each post type.', self::$textdomain),
+                'public'              => false,
+                'show_in_nav_menus'   => false,
+                'show_in_admin_bar'   => false,
+                'exclude_from_search' => true,
+                'show_ui'             => true,
+                'show_in_menu'        => true,
+                'can_export'          => true,
+                'delete_with_user'    => false,
+                'hierarchical'        => false,
+                'has_archive'         => false,
+                'menu_icon'           => 'dashicons-media-text',
+                'query_var'           => 'hdptap_cpt_archive',
+                'menu_position'       => 26,
+                'labels'              => $labels,
+                'supports'            => [
+                    'title',
+                    'editor',
+                    'thumbnail',
+                ],
+            ]);
+        }
     }
 
     /**
-     * @return array
+     * @param string $slug
+     * @param int    $post_ID
+     * @param string $post_status
+     * @param string $post_type
+     * @param int    $post_parent
+     * @param string $original_slug
+     *
+     * @return string
      */
-    public function get_post_type_options()
+    public static function fixArchivePostTypeSlug(
+        $slug,
+        $post_ID,
+        $post_status,
+        $post_type,
+        $post_parent,
+        $original_slug
+    ) {
+        if ($post_type === self::$archive_post_type) {
+            return $original_slug;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * @param string        $post_type
+     * @param \WP_Post_Type $args
+     */
+    public static function createArchivePages($post_type, $args)
     {
-        return $this->options;
+        if (self::$add_archive_page) {
+
+            // if this is the archive pages post type - do nothing.
+            if (self::$archive_post_type === $post_type) {
+                return;
+            }
+
+            // if this post type is not supposed to support an archive - do nothing.
+            if (empty($args->has_archive)) {
+                return;
+            }
+
+
+            $post_type_archive_id = cpt_get_post_type_archive_post_id($post_type);
+
+            if (empty($post_type_archive_id)) {
+                $postarr = [
+                    'post_type'   => self::$archive_post_type,
+                    'post_title'  => $args->labels->name,
+                    'post_status' => 'publish',
+                    'name'        => $post_type,
+                ];
+
+                wp_insert_post($postarr, true);
+
+            }
+        }
     }
 
     /**
      * @param array $options
      */
-    public function set_post_type_options(array $options = [])
+    public function setPostTypeOptions(array $options = [])
     {
-        $labels = [
-            'name'               => sprintf(__('%s', $this->textdomain), $this->plural),
-            'singular_name'      => sprintf(__('%s', $this->textdomain), $this->singular),
-            'menu_name'          => sprintf(__('%s', $this->textdomain), $this->plural),
-            'all_items'          => sprintf(__('%s', $this->textdomain), $this->plural),
-            'add_new'            => __('Add New', $this->textdomain),
-            'add_new_item'       => sprintf(__('Add New %s', $this->textdomain), $this->singular),
-            'edit_item'          => sprintf(__('Edit %s', $this->textdomain), $this->singular),
-            'new_item'           => sprintf(__('New %s', $this->textdomain), $this->singular),
-            'view_item'          => sprintf(__('View %s', $this->textdomain), $this->singular),
-            'search_items'       => sprintf(__('Search %s', $this->textdomain), $this->plural),
-            'not_found'          => sprintf(__('No %s found', $this->textdomain), $this->plural),
-            'not_found_in_trash' => sprintf(__('No %s found in Trash', $this->textdomain), $this->plural),
-            'parent_item_colon'  => sprintf(__('Parent %s:', $this->textdomain), $this->singular),
-        ];
 
         $defaults = [
-            'labels'       => $labels,
+            'labels'       => cpt_get_post_type_labels($this->post_type_name),
             'public'       => true,
             'show_in_rest' => true,
         ];
 
-        $this->options = array_replace_recursive($defaults, $options);
+        $this->post_type_options = array_replace_recursive($defaults, $options);
     }
 
     /**
-     * @param $textdomain
+     * @param string   $column_name
+     * @param callable $callback
      */
-    public function set_textdomain($textdomain)
+    public function setPopulateColumns(string $column_name, callable $callback): void
     {
-        $this->textdomain = $textdomain;
+        $this->populate_columns[$column_name] = $callback;
     }
 
     /**
-     * @param $var
-     *
-     * @return bool
+     * @param array $columns
      */
-    public function get($var)
+    public function setColumns(array $columns = []): void
     {
-        return $this->$var ?: false;
+        $this->columns = $columns;
     }
 
-    public function register_post_type()
+    /**
+     * @param array $filters
+     */
+    public function setFilters(array $filters): void
+    {
+        $this->filters = $filters;
+    }
+
+    public function registerPostType()
     {
         if ( ! post_type_exists($this->post_type)) {
-            register_post_type($this->post_type_name, $this->get_post_type_options());
+
+            self::$add_archive_page = true;
+
+            register_post_type($this->post_type_name, $this->post_type_options);
         }
     }
 
     /**
-     * @param       $taxonomy_names
+     * @param       $taxonomy_name
      * @param array $options
      */
-    public function register_taxonomy($taxonomy_names, array $options = [])
+    public function registerTaxonomy(string $taxonomy_name, array $options = [])
     {
-        $taxonomy_name  = sanitize_key($taxonomy_names);
-        $human_friendly = $this->get_human_friendly($taxonomy_names);
-        $singular       = $this->get_singular($human_friendly);
-        $plural         = $this->get_plural($human_friendly);
+        $taxonomy_name = sanitize_key($taxonomy_name);
 
-        $labels                                  = [
-            'name'                       => sprintf(__('%s', $this->textdomain), $plural),
-            'singular_name'              => sprintf(__('%s', $this->textdomain), $singular),
-            'menu_name'                  => sprintf(__('%s', $this->textdomain), $plural),
-            'all_items'                  => sprintf(__('All %s', $this->textdomain), $plural),
-            'edit_item'                  => sprintf(__('Edit %s', $this->textdomain), $singular),
-            'view_item'                  => sprintf(__('View %s', $this->textdomain), $singular),
-            'update_item'                => sprintf(__('Update %s', $this->textdomain), $singular),
-            'add_new_item'               => sprintf(__('Add New %s', $this->textdomain), $singular),
-            'new_item_name'              => sprintf(__('New %s Name', $this->textdomain), $singular),
-            'parent_item'                => sprintf(__('Parent %s', $this->textdomain), $plural),
-            'parent_item_colon'          => sprintf(__('Parent %s:', $this->textdomain), $plural),
-            'search_items'               => sprintf(__('Search %s', $this->textdomain), $plural),
-            'popular_items'              => sprintf(__('Popular %s', $this->textdomain), $plural),
-            'separate_items_with_commas' => sprintf(__('Seperate %s with commas', $this->textdomain), $plural),
-            'add_or_remove_items'        => sprintf(__('Add or remove %s', $this->textdomain), $plural),
-            'choose_from_most_used'      => sprintf(__('Choose from most used %s', $this->textdomain), $plural),
-            'not_found'                  => sprintf(__('No %s found', $this->textdomain), $plural),
-        ];
         $defaults                                = [
-            'labels'       => $labels,
+            'labels'       => cpt_get_taxonomy_labels($taxonomy_name),
             'hierarchical' => true,
             'show_in_rest' => true,
         ];
@@ -236,10 +382,10 @@ class CustomPostType
         $this->taxonomy_settings[$taxonomy_name] = array_replace_recursive($defaults, $options);
     }
 
-    public function register_taxonomies()
+    public function registerTaxonomies()
     {
         if (is_array($this->taxonomy_settings)) {
-            foreach ((array)$this->taxonomy_settings as $taxonomy_name => $options) {
+            foreach ($this->taxonomy_settings as $taxonomy_name => $options) {
                 if ( ! taxonomy_exists($taxonomy_name)) {
                     register_taxonomy($taxonomy_name, $this->post_type, $options);
                 } else {
@@ -249,42 +395,45 @@ class CustomPostType
         }
     }
 
-    public function register_exisiting_taxonomies()
+    public function registerExisitingTaxonomies()
     {
         if (is_array($this->exisiting_taxonomies)) {
-            foreach ((array)$this->exisiting_taxonomies as $taxonomy_name) {
+            foreach ($this->exisiting_taxonomies as $taxonomy_name) {
                 register_taxonomy_for_object_type($taxonomy_name, $this->post_type);
             }
         }
     }
 
     /**
-     * @param $columns
+     * @param array $columns
      *
      * @return array
      */
-    public function add_admin_columns($columns)
+    public function addAdminColumns(array $columns = [])
     {
         if ($this->columns === null) {
             $new_columns = [];
-            if ((is_array($this->taxonomies) && in_array('post_tag',
-                        $this->taxonomies)) || $this->post_type === 'post') {
-                $after = 'tags';
-            } elseif ((is_array($this->taxonomies) && in_array('category',
-                        $this->taxonomies)) || $this->post_type === 'post') {
-                $after = 'categories';
+
+            $after = '';
+
+            if ($this->post_type === 'post' && is_array($this->taxonomies)) {
+                if (in_array('post_tag', $this->taxonomies)) {
+                    $after = 'tags';
+                } elseif (in_array('category', $this->taxonomies)) {
+                    $after = 'categories';
+                }
             } elseif (post_type_supports($this->post_type, 'author')) {
                 $after = 'author';
             } else {
                 $after = 'title';
             }
-            foreach ((array)$columns as $key => $title) {
+            foreach ($columns as $key => $title) {
                 $new_columns[$key] = $title;
                 if ($key === $after && is_array($this->taxonomies)) {
-                    foreach ((array)$this->taxonomies as $tax) {
+                    foreach ($this->taxonomies as $tax) {
                         if ($tax !== 'category' && $tax !== 'post_tag') {
                             $taxonomy_object   = get_taxonomy($tax);
-                            $new_columns[$tax] = sprintf(__('%s', $this->textdomain), $taxonomy_object->labels->name);
+                            $new_columns[$tax] = sprintf(__('%s', self::$textdomain), $taxonomy_object->labels->name);
                         }
                     }
                 }
@@ -297,11 +446,12 @@ class CustomPostType
         return $columns;
     }
 
+
     /**
-     * @param $column
-     * @param $post_id
+     * @param string $column
+     * @param int    $post_id
      */
-    public function populate_admin_columns($column, $post_id)
+    public function populateAdminColumns(string $column = '', int $post_id = 0)
     {
         global $post;
         switch ($column) {
@@ -319,14 +469,14 @@ class CustomPostType
                     echo implode(', ', $output);
                 } else {
                     $taxonomy_object = get_taxonomy($column);
-                    printf(__('No %s', $this->textdomain), $taxonomy_object->labels->name);
+                    printf(__('No %s', self::$textdomain), $taxonomy_object->labels->name);
                 }
                 break;
             case 'post_id':
                 echo $post->ID;
                 break;
-            case 0 === mb_strpos($column, 'meta_'):
-                $meta_column = mb_substr($column, 5);
+            case 0 === strpos($column, 'meta_'):
+                $meta_column = substr($column, 5);
                 $meta        = get_post_meta($post->ID, $meta_column, true);
                 echo trim($meta) !== '' ? $meta : '&mdash;';
                 break;
@@ -345,24 +495,17 @@ class CustomPostType
                 }
                 break;
             default:
-                if (isset($this->custom_populate_columns) && is_array($this->custom_populate_columns)) {
-                    if (isset($this->custom_populate_columns[$column]) && is_callable($this->custom_populate_columns[$column])) {
-                        call_user_func($this->custom_populate_columns[$column], $column, $post);
+                if (isset($this->populate_columns) && is_array($this->populate_columns)) {
+                    if (isset($this->populate_columns[$column]) && is_callable($this->populate_columns[$column])) {
+                        call_user_func($this->populate_columns[$column], $column, $post);
                     }
                 }
                 break;
         }
     }
 
-    /**
-     * @param array $filters
-     */
-    public function filters(array $filters = [])
-    {
-        $this->filters = $filters;
-    }
 
-    public function add_taxonomy_filters()
+    public function addTaxonomyFilters()
     {
         global $typenow;
         if ($typenow === $this->post_type) {
@@ -375,7 +518,7 @@ class CustomPostType
                     if ($terms) {
                         printf(' &nbsp;<select name="%s" class="postform">', $tax_slug);
                         printf('<option value="0">%s</option>',
-                            sprintf(__('Show all %s', $this->textdomain), $tax->label));
+                            sprintf(__('Show all %s', self::$textdomain), $tax->label));
                         foreach ((array)$terms as $term) {
                             if (isset($_GET[$tax_slug]) && $_GET[$tax_slug] === $term->slug) {
                                 printf('<option value="%s" selected="selected">%s (%s)</option>', $term->slug,
@@ -391,52 +534,24 @@ class CustomPostType
         }
     }
 
-    /**
-     * @param $columns
-     */
-    public function columns($columns)
-    {
-        if (isset($columns)) {
-            $this->columns = $columns;
-        }
-    }
-
-    /**
-     * @param $column_name
-     * @param $callback
-     */
-    public function populate_column($column_name, $callback)
-    {
-        $this->custom_populate_columns[$column_name] = $callback;
-    }
 
     /**
      * @param array $columns
      */
-    public function sortable(array $columns = null)
+    public function setSortable(array $columns = null)
     {
         $this->sortable = $columns;
 
-        add_filter("manage_edit-{$this->post_type}_sortable_columns", [$this, 'make_columns_sortable']);
-        add_action('load-edit.php', [$this, 'load_edit']);
+        add_filter("manage_edit-{$this->post_type}_sortable_columns", [$this, 'makeColumnsSortable']);
+        add_action('load-edit.php', [$this, 'loadAdit']);
     }
 
     /**
-     * @param     $callback
-     * @param int $priority
-     * @param int $accepted_args
-     */
-    public function save_post($callback, $priority = 10, $accepted_args = 2)
-    {
-        add_action("save_post_{$this->post_type}", $callback, $priority, $accepted_args);
-    }
-
-    /**
-     * @param $columns
+     * @param array $columns
      *
      * @return array
      */
-    public function make_columns_sortable($columns)
+    public function makeColumnsSortable(array $columns = [])
     {
         $sortable_columns = [];
         foreach ($this->sortable as $column => $values) {
@@ -452,9 +567,9 @@ class CustomPostType
      *
      * @see http://codex.wordpress.org/Plugin_API/Filter_Reference/request
      */
-    public function load_edit()
+    public function loadAdit()
     {
-        add_filter('request', [$this, 'sort_columns']);
+        add_filter('request', [$this, 'sortColumns']);
     }
 
     /**
@@ -462,17 +577,23 @@ class CustomPostType
      *
      * @return array
      */
-    public function sort_columns($vars)
+    public function sortColumns($vars)
     {
+        $_vars = [];
+
         foreach ($this->sortable as $column => $values) {
             $meta_key = $values[0];
             $orderby  = isset($values[1]) && true === $values[1] ? 'meta_value_num' : 'meta_value';
             if (isset($vars['post_type']) && $this->post_type === $vars['post_type'] && isset($vars['orderby']) && $meta_key === $vars['orderby']) {
-                $vars = array_merge($vars, [
+                $_vars[] = [
                     'meta_key' => $meta_key,
                     'orderby'  => $orderby,
-                ]);
+                ];
             }
+        }
+
+        if ( ! empty($_vars)) {
+            $vars = array_merge([], ...$_vars);
         }
 
         return $vars;
@@ -481,12 +602,12 @@ class CustomPostType
     /**
      * @param string $icon
      */
-    public function menu_icon($icon = 'dashicons-admin-page')
+    public function setMenuIcon($icon = 'dashicons-admin-page')
     {
-        if (is_string($icon) && mb_stripos($icon, 'dashicons') !== false) {
-            $this->options['menu_icon'] = $icon;
+        if (is_string($icon) && stripos($icon, 'dashicons') !== false) {
+            $this->post_type_options['menu_icon'] = $icon;
         } else {
-            $this->options['menu_icon'] = 'dashicons-admin-page';
+            $this->post_type_options['menu_icon'] = 'dashicons-admin-page';
         }
     }
 
@@ -495,47 +616,50 @@ class CustomPostType
      *
      * @return array
      */
-    public function updated_messages($messages)
+    public function updatedMessages(array $messages = [])
     {
         $post = get_post();
 
         $messages[$this->post_type_name] = [
             0  => '',
-            1  => sprintf(__('%s updated.', $this->textdomain), $this->singular),
-            2  => __('Custom field updated.', $this->textdomain),
-            3  => __('Custom field deleted.', $this->textdomain),
-            4  => sprintf(__('%s updated.', $this->textdomain), $this->singular),
-            5  => isset($_GET['revision']) ? sprintf(__('%2$s restored to revision from %1$s', $this->textdomain),
-                wp_post_revision_title((int)$_GET['revision'], false), $this->singular) : false,
-            6  => sprintf(__('%s updated.', $this->textdomain), $this->singular),
-            7  => sprintf(__('%s saved.', $this->textdomain), $this->singular),
-            8  => sprintf(__('%s submitted.', $this->textdomain), $this->singular),
-            9  => sprintf(__('%2$s scheduled for: <strong>%1$s</strong>.', $this->textdomain),
-                date_i18n(__('M j, Y @ G:i', $this->textdomain), strtotime($post->post_date)), $this->singular),
-            10 => sprintf(__('%s draft updated.', $this->textdomain), $this->singular),
+            1  => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            2  => __('Custom field updated.', self::$textdomain),
+            3  => __('Custom field deleted.', self::$textdomain),
+            4  => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            5  => isset($_GET['revision']) ? sprintf(__('%2$s restored to revision from %1$s', self::$textdomain),
+                wp_post_revision_title((int)$_GET['revision'], false), $this->post_type_singular) : false,
+            6  => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            7  => sprintf(__('%s saved.', self::$textdomain), $this->post_type_singular),
+            8  => sprintf(__('%s submitted.', self::$textdomain), $this->post_type_singular),
+            9  => sprintf(__('%2$s scheduled for: <strong>%1$s</strong>.', self::$textdomain),
+                date_i18n(__('M j, Y @ G:i', self::$textdomain), strtotime($post->post_date)),
+                $this->post_type_singular),
+            10 => sprintf(__('%s draft updated.', self::$textdomain), $this->post_type_singular),
         ];
 
         return $messages;
     }
 
     /**
-     * @param $bulk_messages
-     * @param $bulk_counts
+     * @param array $bulk_messages
+     * @param array $bulk_counts
      *
      * @return mixed
      */
-    public function bulk_updated_messages($bulk_messages, $bulk_counts)
+    public function bulkUpdatedMessages(array $bulk_messages = [], array $bulk_counts = [])
     {
+
         $bulk_messages[$this->post_type_name] = [
-            'updated'   => _n("%s {$this->singular} updated.", "%s {$this->plural} updated.", $bulk_counts['updated']),
-            'locked'    => _n("%s {$this->singular} not updated, somebody is editing it.",
-                "%s {$this->plural} not updated, somebody is editing them.", $bulk_counts['locked']),
-            'deleted'   => _n("%s {$this->singular} permanently deleted.", "%s {$this->plural} permanently deleted.",
-                $bulk_counts['deleted']),
-            'trashed'   => _n("%s {$this->singular} moved to the Trash.", "%s {$this->plural} moved to the Trash.",
-                $bulk_counts['trashed']),
-            'untrashed' => _n("%s {$this->singular} restored from the Trash.",
-                "%s {$this->plural} restored from the Trash.", $bulk_counts['untrashed']),
+            'updated'   => _n("%s {$this->post_type_singular} updated.", "%s {$this->post_type_plural} updated.",
+                $bulk_counts['updated']),
+            'locked'    => _n("%s {$this->post_type_singular} not updated, somebody is editing it.",
+                "%s {$this->post_type_plural} not updated, somebody is editing them.", $bulk_counts['locked']),
+            'deleted'   => _n("%s {$this->post_type_singular} permanently deleted.",
+                "%s {$this->post_type_plural} permanently deleted.", $bulk_counts['deleted']),
+            'trashed'   => _n("%s {$this->post_type_singular} moved to the Trash.",
+                "%s {$this->post_type_plural} moved to the Trash.", $bulk_counts['trashed']),
+            'untrashed' => _n("%s {$this->post_type_singular} restored from the Trash.",
+                "%s {$this->post_type_plural} restored from the Trash.", $bulk_counts['untrashed']),
         ];
 
         return $bulk_messages;

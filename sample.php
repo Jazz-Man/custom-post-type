@@ -1,8 +1,5 @@
 <?php
 
-
-require_once ABSPATH . 'vendor/autoload.php';
-
 use JazzMan\Post\CustomPostType;
 
 
@@ -11,42 +8,42 @@ $books = new CustomPostType('book');
 
 
 // create a genre taxonomy
-$books->register_taxonomy('genre');
+$books->registerTaxonomy('genre');
 
 
 // define the columns to appear on the admin edit screen
-$books->columns(array(
-    'cb' => '<input type="checkbox" />',
-    'title' => __('Title'),
-    'genre' => __('Genres'),
-    'price' => __('Price'),
+$books->setColumns([
+    'cb'     => '<input type="checkbox" />',
+    'title'  => __('Title'),
+    'genre'  => __('Genres'),
+    'price'  => __('Price'),
     'rating' => __('Rating'),
-    'date' => __('Date')
-));
+    'date'   => __('Date'),
+]);
 
 
 // populate the price column
-$books->populate_column('price', function($column, $post) {
+$books->setPopulateColumns('price', static function ($column, $post) {
 
-    echo "£" . get_field('price'); // ACF get_field() function
+    echo "£" . get_post_meta($post->ID,'price',true);
 
-}); 
+});
 
 
 // populate the ratings column
-$books->populate_column('rating', function($column, $post) {
+$books->setPopulateColumns('rating', static function ($column, $post) {
 
-    echo get_field('rating') . '/5'; // ACF get_field() function
+    echo get_post_meta($post->ID,'rating',true) . '/5';
 
 });
 
 
 // make rating and price columns sortable
-$books->sortable(array(
-    'price' => array('price', true),
-    'rating' => array('rating', true)
-));
+$books->setSortable([
+    'price'  => ['price', true],
+    'rating' => ['rating', true],
+]);
 
 
 // use "pages" icon for post type
-$books->menu_icon("dashicons-book-alt");
+$books->setMenuIcon('dashicons-book-alt');
