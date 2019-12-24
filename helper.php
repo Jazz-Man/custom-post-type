@@ -87,16 +87,25 @@ function cpt_get_taxonomy_labels(string $taxonomy_name, $textdomain = 'cpt')
  */
 function cpt_get_post_type_archive_post_id(string $post_type)
 {
-    $post_type_archive_id = get_posts([
-        'fields'      => 'ids',
-        'numberposts' => 1,
-        'post_type'   => 'hdptap_cpt_archive',
-        'post_status' => 'publish',
-        'name'        => $post_type,
-    ]);
+    global $wpdb;
 
-    if ( ! empty($post_type_archive_id)) {
-        return reset($post_type_archive_id);
+    $query = $wpdb->prepare(<<<SQL
+SELECT 
+  ID 
+FROM $wpdb->posts 
+WHERE 
+  post_status ='publish' 
+  AND post_type = %s 
+  AND post_name = %s 
+LIMIT 1
+SQL
+        ,'hdptap_cpt_archive',$post_type);
+
+
+    $post_type_archive_id = $wpdb->get_var($query);
+
+    if ( $post_type_archive_id !== null) {
+        return (int)$post_type_archive_id;
     }
 
     return false;
