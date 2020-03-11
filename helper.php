@@ -16,11 +16,12 @@ function cpt_get_human_friendly(string $name = '')
 
 /**
  * @param string $post_type
+ * @param array  $options
  * @param string $textdomain
  *
  * @return array
  */
-function cpt_get_post_type_labels(string $post_type, $textdomain = 'cpt')
+function cpt_get_post_type_labels(string $post_type, $options = [], $textdomain = 'cpt')
 {
     $human_friendly = cpt_get_human_friendly($post_type);
     $singular       = Pluralizer::singular($human_friendly);
@@ -42,16 +43,19 @@ function cpt_get_post_type_labels(string $post_type, $textdomain = 'cpt')
         'parent_item_colon'  => sprintf(__('Parent %s:', $textdomain), $singular),
     ];
 
+    $labels = wp_parse_args($options, $labels);
+
     return $labels;
 }
 
 /**
  * @param string $taxonomy_name
+ * @param array  $options
  * @param string $textdomain
  *
  * @return array
  */
-function cpt_get_taxonomy_labels(string $taxonomy_name, $textdomain = 'cpt')
+function cpt_get_taxonomy_labels(string $taxonomy_name, $options = [], $textdomain = 'cpt')
 {
     $human_friendly = cpt_get_human_friendly($taxonomy_name);
     $singular       = Pluralizer::singular($human_friendly);
@@ -77,6 +81,8 @@ function cpt_get_taxonomy_labels(string $taxonomy_name, $textdomain = 'cpt')
         'not_found'                  => sprintf(__('No %s found', $textdomain), $plural),
     ];
 
+    $labels = wp_parse_args($options, $labels);
+
     return $labels;
 }
 
@@ -99,12 +105,12 @@ WHERE
   AND post_name = %s 
 LIMIT 1
 SQL
-        ,'hdptap_cpt_archive',$post_type);
+        , 'hdptap_cpt_archive', $post_type);
 
 
     $post_type_archive_id = $wpdb->get_var($query);
 
-    if ( $post_type_archive_id !== null) {
+    if ($post_type_archive_id !== null) {
         return (int)$post_type_archive_id;
     }
 
