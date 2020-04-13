@@ -88,7 +88,7 @@ class CustomPostType
         $this->post_type_singular = Pluralizer::singular($human_friendly);
         $this->post_type_plural = Pluralizer::plural($human_friendly);
 
-        $this->setPostTypeOptions($options);
+        $this->post_type_options = $options;
 
         add_action('init', [__CLASS__, 'registerCptArchivePostType']);
         add_action('registered_post_type', [__CLASS__, 'createArchivePages'], 10, 2);
@@ -246,11 +246,10 @@ class CustomPostType
 
     /**
      * @param string|null $original_slug
-     *
-     * @param string      $slug
-     * @param int         $post_ID
-     * @param string      $post_status
-     * @param string      $post_type
+     * @param string $slug
+     * @param int $post_ID
+     * @param string $post_status
+     * @param string $post_type
      *
      * @return string
      */
@@ -301,20 +300,6 @@ class CustomPostType
     }
 
     /**
-     * @param array $options
-     */
-    public function setPostTypeOptions(array $options = [])
-    {
-        $defaults = [
-            'labels' => cpt_get_post_type_labels($this->post_type_name),
-            'public' => true,
-            'show_in_rest' => true,
-        ];
-
-        $this->post_type_options = array_replace_recursive($defaults, $options);
-    }
-
-    /**
      * @param string   $column_name
      * @param callable $callback
      */
@@ -344,7 +329,9 @@ class CustomPostType
         if (!post_type_exists($this->post_type)) {
             self::$add_archive_page = true;
 
-            register_post_type($this->post_type_name, $this->post_type_options);
+            $options = $this->getPostTypeOptions($this->post_type_options);
+
+            register_post_type($this->post_type_name, $options);
         }
     }
 
@@ -637,5 +624,24 @@ class CustomPostType
         ];
 
         return $bulk_messages;
+    }
+
+    /**
+     * @param array $options
+     * @return array
+     */
+    private function getPostTypeOptions(array $options = [])
+    {
+        $defaults = [
+            'labels' => cpt_get_post_type_labels($this->post_type_name),
+            'public' => true,
+            'show_in_rest' => true,
+        ];
+
+        if (!empty($this->taxonomies)) {
+            $defaults['taxonomies'] = $this->taxonomies;
+        }
+
+        return array_replace_recursive($defaults, $options);
     }
 }
