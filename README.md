@@ -1,5 +1,7 @@
 # WP Custom Post Type Class
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f4fea9bb28664869a54c7ed94e3a8705)](https://app.codacy.com/gh/Jazz-Man/custom-post-type?utm_source=github.com&utm_medium=referral&utm_content=Jazz-Man/custom-post-type&utm_campaign=Badge_Grade)
+
 A single class to help you build more advanced custom post types quickly.
 
 ## Installation
