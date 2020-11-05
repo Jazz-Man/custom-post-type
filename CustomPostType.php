@@ -188,16 +188,17 @@ class CustomPostType
     public static function adminMenuCorrection(string $parent_file = '')
     {
         global $current_screen;
+        $post_id = \filter_input(INPUT_GET, 'post', FILTER_VALIDATE_INT);
         // if this is a post edit screen for the archive page post type.
-        if (! empty($_GET['post']) && 'post' === $current_screen->base && self::$archive_post_type === $current_screen->post_type) {
+        if (! empty($post_id) && 'post' === $current_screen->base && self::$archive_post_type === $current_screen->post_type) {
             // get the plugin options.
 
-            $post = get_post((int) $_GET['post']);
+            $post = get_post($post_id);
 
             // if we have an archive post type returned.
             if (! empty($post)) {
                 // set the parent file to the archive post type.
-                $parent_file = 'edit.php?post_type=' . $post->post_name;
+                $parent_file = add_query_arg(['post_type' => $post->post_name], 'edit.php');
             }
         }
 
