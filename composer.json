@@ -4,7 +4,7 @@
     "description": "A single class to help you build more advanced custom post types quickly.",
     "authors": [
         {
-            "name": "jazzman",
+            "name": "Vasyl Sokolyk",
             "email": "vsokolyk@gmail.com"
         }
     ],
@@ -21,7 +21,9 @@
         ]
     },
     "require-dev": {
-        "roots/wordpress": "^5"
+        "roots/wordpress": "^5",
+        "roave/security-advisories": "dev-master",
+        "dg/composer-cleaner": "^2.2"
     },
     "extra": {
         "installer-paths": {
@@ -30,5 +32,12 @@
             "vendor/wp/themes/{$name}/": ["type:wordpress-theme"]
         },
         "wordpress-install-dir": "vendor/wp"
+    },
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "classmap-authoritative": true,
+        "apcu-autoloader": true
     }
 }
