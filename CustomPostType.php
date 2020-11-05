@@ -459,7 +459,7 @@ class CustomPostType
                     echo \implode(', ', $output);
                 } else {
                     $taxonomy_object = get_taxonomy($column);
-                    \printf(__('No %s', self::$textdomain), esc_attr($taxonomy_object->labels->name));
+                    esc_attr_e(\sprintf('No %s', $taxonomy_object->labels->name), self::$textdomain);
                 }
                 break;
             case 'post_id':
