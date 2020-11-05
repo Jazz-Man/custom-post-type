@@ -21,7 +21,7 @@
         ]
     },
     "require-dev": {
-        "roots/wordpress": "^4"
+        "roots/wordpress": "^5"
     },
     "extra": {
         "installer-paths": {
