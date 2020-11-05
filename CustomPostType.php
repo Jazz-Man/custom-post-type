@@ -12,15 +12,6 @@ class CustomPostType
     /**
      * @var string
      */
-    public $post_type;
-    /**
-     * @var string
-     */
-    public $post_type_name;
-
-    /**
-     * @var string
-     */
     private static $textdomain = 'cpt';
     /**
      * @var string
@@ -30,6 +21,14 @@ class CustomPostType
      * @var bool
      */
     private static $add_archive_page = false;
+    /**
+     * @var string
+     */
+    public $post_type;
+    /**
+     * @var string
+     */
+    public $post_type_name;
     /**
      * @var array
      */
@@ -75,7 +74,7 @@ class CustomPostType
      * CustomPostType constructor.
      *
      * @param string $post_type_names
-     * @param array  $options
+     * @param array $options
      */
     public function __construct($post_type_names, array $options = [])
     {
@@ -116,7 +115,7 @@ class CustomPostType
     public static function archiveDescription(string $desc = '')
     {
         // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
+        if (! is_post_type_archive()) {
             return $desc;
         }
         // get the current post type.
@@ -128,7 +127,7 @@ class CustomPostType
 
         // if we have a desc.
 
-        if (!empty($post_type_archive_desc)) {
+        if (! empty($post_type_archive_desc)) {
             $desc = apply_filters('the_content', $post_type_archive_desc);
         }
 
@@ -142,7 +141,7 @@ class CustomPostType
     public static function archiveTitle(string $title = '')
     {
         // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
+        if (! is_post_type_archive()) {
             return $title;
         }
         // get the current post type.
@@ -150,7 +149,7 @@ class CustomPostType
         // get the post type archive title for this post type.
         $post_type_archive_title = cpt_get_post_type_archive_title($current_post_type);
 
-        if (!empty($post_type_archive_title)) {
+        if (! empty($post_type_archive_title)) {
             return apply_filters('the_title', $post_type_archive_title);
         }
 
@@ -169,9 +168,9 @@ class CustomPostType
                 'numberposts' => -1,
             ]);
 
-            if (!empty($post_types)) {
+            if (! empty($post_types)) {
                 foreach ($post_types as $post_type) {
-                    $edit_link = sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID);
+                    $edit_link = \sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID);
 
                     // add the menu item for this post type.
                     add_submenu_page("edit.php?post_type={$post_type->post_name}",
@@ -190,15 +189,15 @@ class CustomPostType
     {
         global $current_screen;
         // if this is a post edit screen for the archive page post type.
-        if (!empty($_GET['post']) && 'post' === $current_screen->base && self::$archive_post_type === $current_screen->post_type) {
+        if (! empty($_GET['post']) && 'post' === $current_screen->base && self::$archive_post_type === $current_screen->post_type) {
             // get the plugin options.
 
             $post = get_post((int) $_GET['post']);
 
             // if we have an archive post type returned.
-            if (!empty($post)) {
+            if (! empty($post)) {
                 // set the parent file to the archive post type.
-                $parent_file = 'edit.php?post_type='.$post->post_name;
+                $parent_file = 'edit.php?post_type=' . $post->post_name;
             }
         }
 
@@ -207,7 +206,7 @@ class CustomPostType
 
     public static function registerCptArchivePostType()
     {
-        if (!post_type_exists(self::$archive_post_type)) {
+        if (! post_type_exists(self::$archive_post_type)) {
             /**
              * Lets register the conditions post type
              * post type name is docp_condition.
@@ -300,7 +299,7 @@ class CustomPostType
     }
 
     /**
-     * @param string   $column_name
+     * @param string $column_name
      * @param callable $callback
      */
     public function setPopulateColumns(string $column_name, callable $callback): void
@@ -326,7 +325,7 @@ class CustomPostType
 
     public function registerPostType()
     {
-        if (!post_type_exists($this->post_type)) {
+        if (! post_type_exists($this->post_type)) {
             self::$add_archive_page = true;
 
             $options = $this->getPostTypeOptions($this->post_type_options);
@@ -336,8 +335,27 @@ class CustomPostType
     }
 
     /**
+     * @param array $options
+     * @return array
+     */
+    private function getPostTypeOptions(array $options = [])
+    {
+        $defaults = [
+            'labels' => cpt_get_post_type_labels($this->post_type_name),
+            'public' => true,
+            'show_in_rest' => true,
+        ];
+
+        if (! empty($this->taxonomies)) {
+            $defaults['taxonomies'] = $this->taxonomies;
+        }
+
+        return \array_replace_recursive($defaults, $options);
+    }
+
+    /**
      * @param string $taxonomy_name
-     * @param array  $options
+     * @param array $options
      */
     public function registerTaxonomy(string $taxonomy_name, array $options = [])
     {
@@ -349,14 +367,14 @@ class CustomPostType
             'show_in_rest' => true,
         ];
         $this->taxonomies[] = $taxonomy_name;
-        $this->taxonomy_settings[$taxonomy_name] = array_replace_recursive($defaults, $options);
+        $this->taxonomy_settings[$taxonomy_name] = \array_replace_recursive($defaults, $options);
     }
 
     public function registerTaxonomies()
     {
         if (\is_array($this->taxonomy_settings)) {
             foreach ($this->taxonomy_settings as $taxonomy_name => $options) {
-                if (!taxonomy_exists($taxonomy_name)) {
+                if (! taxonomy_exists($taxonomy_name)) {
                     register_taxonomy($taxonomy_name, $this->post_type, $options);
                 } else {
                     $this->exisiting_taxonomies[] = $taxonomy_name;
@@ -386,9 +404,9 @@ class CustomPostType
             $after = '';
 
             if ('post' === $this->post_type && \is_array($this->taxonomies)) {
-                if (\in_array('post_tag', $this->taxonomies)) {
+                if (\in_array('post_tag', $this->taxonomies, true)) {
                     $after = 'tags';
-                } elseif (\in_array('category', $this->taxonomies)) {
+                } elseif (\in_array('category', $this->taxonomies, true)) {
                     $after = 'categories';
                 }
             } elseif (post_type_supports($this->post_type, 'author')) {
@@ -402,7 +420,7 @@ class CustomPostType
                     foreach ($this->taxonomies as $tax) {
                         if ('category' !== $tax && 'post_tag' !== $tax) {
                             $taxonomy_object = get_taxonomy($tax);
-                            $new_columns[$tax] = sprintf(__('%s', self::$textdomain), $taxonomy_object->labels->name);
+                            $new_columns[$tax] = \sprintf(__('%s', self::$textdomain), $taxonomy_object->labels->name);
                         }
                     }
                 }
@@ -417,7 +435,7 @@ class CustomPostType
 
     /**
      * @param string $column
-     * @param int    $post_id
+     * @param int $post_id
      */
     public function populateAdminColumns(string $column = '', int $post_id = 0)
     {
@@ -425,45 +443,49 @@ class CustomPostType
         switch ($column) {
             case taxonomy_exists($column):
                 $terms = get_the_terms($post_id, $column);
-                if (!empty($terms)) {
+                if (! empty($terms)) {
                     $output = [];
                     foreach ((array) $terms as $term) {
-                        $output[] = sprintf('<a href="%s">%s</a>', esc_url(add_query_arg([
+                        $term_url = add_query_arg([
                             'post_type' => $post->post_type,
                             $column => $term->slug,
-                        ], 'edit.php')),
-                            esc_html(sanitize_term_field('name', $term->name, $term->term_id, $column, 'display')));
+                        ], 'edit.php');
+
+                        $term_name = sanitize_term_field('name', $term->name, $term->term_id, $column, 'display');
+
+                        $output[] = \sprintf('<a href="%s">%s</a>', esc_url($term_url), esc_html($term_name));
                     }
-                    echo implode(', ', $output);
+                    echo \implode(', ', $output);
                 } else {
                     $taxonomy_object = get_taxonomy($column);
-                    printf(__('No %s', self::$textdomain), $taxonomy_object->labels->name);
+                    \printf(__('No %s', self::$textdomain), esc_attr($taxonomy_object->labels->name));
                 }
                 break;
             case 'post_id':
-                echo $post->ID;
+                echo esc_attr($post->ID);
                 break;
-            case 0 === strpos($column, 'meta_'):
-                $meta_column = substr($column, 5);
+            case 0 === \strpos($column, 'meta_'):
+                $meta_column = \substr($column, 5);
                 $meta = get_post_meta($post->ID, $meta_column, true);
-                echo '' !== trim($meta) ? $meta : '&mdash;';
+                echo '' !== \trim($meta) ? esc_attr($meta) : '&mdash;';
                 break;
             case 'icon':
                 $link = esc_url(add_query_arg([
                     'post' => $post->ID,
                     'action' => 'edit',
                 ], 'post.php'));
+
                 if (has_post_thumbnail()) {
                     $thumbnail = get_the_post_thumbnail($post_id, [60, 60]);
                     echo "<a href='{$link}'>{$thumbnail}</a>";
                 } else {
                     $default_icon = esc_url(includes_url('images/crystal/default.png'));
 
-                    echo "<a href='{$link}'><img src='{$default_icon}' alt='{$post->post_title}' /></a>";
+                    \printf('<a href="%s"><img src="%s" alt="%s" /></a>', $link, $default_icon, esc_attr($post->post_title));
                 }
                 break;
             default:
-                if (!empty($this->populate_columns) && !empty($this->populate_columns[$column])) {
+                if (! empty($this->populate_columns) && ! empty($this->populate_columns[$column])) {
                     \call_user_func($this->populate_columns[$column], $column, $post);
                 }
 
@@ -476,21 +498,25 @@ class CustomPostType
         global $typenow;
         if ($typenow === $this->post_type) {
             $filters = \is_array($this->filters) ? $this->filters : $this->taxonomies;
-            if (!empty($filters)) {
+            if (! empty($filters)) {
                 foreach ($filters as $tax_slug) {
                     $tax = get_taxonomy($tax_slug);
-                    static $args = ['orderby' => 'name', 'hide_empty' => false];
+                    static $args = [
+                        'orderby' => 'name',
+                        'hide_empty' => false,
+                        ];
                     $terms = get_terms($tax_slug, $args);
                     if ($terms) {
-                        printf(' &nbsp;<select name="%s" class="postform">', $tax_slug);
-                        printf('<option value="0">%s</option>',
-                            sprintf(__('Show all %s', self::$textdomain), $tax->label));
+                        $show_all = \sprintf(__('Show all %s', self::$textdomain), esc_attr($tax->label));
+
+                        \printf(' &nbsp;<select name="%s" class="postform">', esc_attr($tax_slug));
+                        \printf('<option value="0">%s</option>', $show_all);
                         foreach ((array) $terms as $term) {
                             if (isset($_GET[$tax_slug]) && $_GET[$tax_slug] === $term->slug) {
-                                printf('<option value="%s" selected="selected">%s (%s)</option>', $term->slug,
-                                    $term->name, $term->count);
+                                \printf('<option value="%s" selected="selected">%s (%s)</option>', esc_attr($term->slug),
+                                    esc_attr($term->name), esc_attr($term->count));
                             } else {
-                                printf('<option value="%s">%s (%s)</option>', $term->slug, $term->name, $term->count);
+                                \printf('<option value="%s">%s (%s)</option>', esc_attr($term->slug), $term->name, $term->count);
                             }
                         }
                         echo '</select>&nbsp;';
@@ -522,7 +548,7 @@ class CustomPostType
             $sortable_columns[$column] = $values[0];
         }
 
-        return array_merge($sortable_columns, $columns);
+        return \array_merge($sortable_columns, $columns);
     }
 
     /**
@@ -556,8 +582,8 @@ class CustomPostType
             }
         }
 
-        if (!empty($_vars)) {
-            $vars = array_merge([], ...$_vars);
+        if (! empty($_vars)) {
+            $vars = \array_merge([], ...$_vars);
         }
 
         return $vars;
@@ -568,7 +594,7 @@ class CustomPostType
      */
     public function setMenuIcon($icon = 'dashicons-admin-page')
     {
-        if (\is_string($icon) && false !== stripos($icon, 'dashicons')) {
+        if (\is_string($icon) && false !== \stripos($icon, 'dashicons')) {
             $this->post_type_options['menu_icon'] = $icon;
         } else {
             $this->post_type_options['menu_icon'] = 'dashicons-admin-page';
@@ -585,19 +611,19 @@ class CustomPostType
 
         $messages[$this->post_type_name] = [
             0 => '',
-            1 => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            1 => \sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
             2 => __('Custom field updated.', self::$textdomain),
             3 => __('Custom field deleted.', self::$textdomain),
-            4 => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
-            5 => isset($_GET['revision']) ? sprintf(__('%2$s restored to revision from %1$s', self::$textdomain),
+            4 => \sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            5 => isset($_GET['revision']) ? \sprintf(__('%2$s restored to revision from %1$s', self::$textdomain),
                 wp_post_revision_title((int) $_GET['revision'], false), $this->post_type_singular) : false,
-            6 => sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
-            7 => sprintf(__('%s saved.', self::$textdomain), $this->post_type_singular),
-            8 => sprintf(__('%s submitted.', self::$textdomain), $this->post_type_singular),
-            9 => sprintf(__('%2$s scheduled for: <strong>%1$s</strong>.', self::$textdomain),
-                date_i18n(__('M j, Y @ G:i', self::$textdomain), strtotime($post->post_date)),
+            6 => \sprintf(__('%s updated.', self::$textdomain), $this->post_type_singular),
+            7 => \sprintf(__('%s saved.', self::$textdomain), $this->post_type_singular),
+            8 => \sprintf(__('%s submitted.', self::$textdomain), $this->post_type_singular),
+            9 => \sprintf(__('%2$s scheduled for: <strong>%1$s</strong>.', self::$textdomain),
+                date_i18n(__('M j, Y @ G:i', self::$textdomain), \strtotime($post->post_date)),
                 $this->post_type_singular),
-            10 => sprintf(__('%s draft updated.', self::$textdomain), $this->post_type_singular),
+            10 => \sprintf(__('%s draft updated.', self::$textdomain), $this->post_type_singular),
         ];
 
         return $messages;
@@ -624,24 +650,5 @@ class CustomPostType
         ];
 
         return $bulk_messages;
-    }
-
-    /**
-     * @param array $options
-     * @return array
-     */
-    private function getPostTypeOptions(array $options = [])
-    {
-        $defaults = [
-            'labels' => cpt_get_post_type_labels($this->post_type_name),
-            'public' => true,
-            'show_in_rest' => true,
-        ];
-
-        if (!empty($this->taxonomies)) {
-            $defaults['taxonomies'] = $this->taxonomies;
-        }
-
-        return array_replace_recursive($defaults, $options);
     }
 }
