@@ -82,7 +82,7 @@ class CustomPostType
 
         $this->post_type = sanitize_key($this->post_type_name);
 
-        $human_friendly = cpt_get_human_friendly($this->post_type_name);
+        $human_friendly = app_get_human_friendly($this->post_type_name);
 
         $this->post_type_singular = Pluralizer::singular($human_friendly);
         $this->post_type_plural = Pluralizer::plural($human_friendly);
@@ -170,12 +170,17 @@ class CustomPostType
 
             if (! empty($post_types)) {
                 foreach ($post_types as $post_type) {
-                    $edit_link = \sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID);
+
+                    $label = __('Archive Page', self::$textdomain);
 
                     // add the menu item for this post type.
-                    add_submenu_page("edit.php?post_type={$post_type->post_name}",
-                        __('Archive Page', self::$textdomain), __('Archive Page', self::$textdomain), 'edit_posts',
-                        $edit_link, false);
+                    add_submenu_page(sprintf("edit.php?post_type=%s",esc_attr($post_type->post_name)),
+                        $label,
+                        $label,
+                        'edit_posts',
+                        \sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID),
+                        false
+                    );
                 }
             }
         }

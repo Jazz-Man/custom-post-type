@@ -5,25 +5,15 @@ namespace JazzMan\Post;
 use JazzMan\Pluralizer\Pluralizer;
 
 /**
- * @param string $name
- *
- * @return string
- */
-function cpt_get_human_friendly(string $name = '')
-{
-    return ucwords(strtolower(str_replace(['-', '_'], ' ', $name)));
-}
-
-/**
  * @param string $post_type
  * @param array  $options
  * @param string $textdomain
  *
  * @return array
  */
-function cpt_get_post_type_labels(string $post_type, $options = [], $textdomain = 'cpt')
+function cpt_get_post_type_labels(string $post_type, $options = [], string $textdomain = 'cpt')
 {
-    $human_friendly = cpt_get_human_friendly($post_type);
+    $human_friendly = app_get_human_friendly($post_type);
     $singular       = Pluralizer::singular($human_friendly);
     $plural         = Pluralizer::plural($human_friendly);
 
@@ -43,9 +33,7 @@ function cpt_get_post_type_labels(string $post_type, $options = [], $textdomain 
         'parent_item_colon'  => sprintf(__('Parent %s:', $textdomain), $singular),
     ];
 
-    $labels = wp_parse_args($options, $labels);
-
-    return $labels;
+    return wp_parse_args($options, $labels);
 }
 
 /**
@@ -55,9 +43,9 @@ function cpt_get_post_type_labels(string $post_type, $options = [], $textdomain 
  *
  * @return array
  */
-function cpt_get_taxonomy_labels(string $taxonomy_name, $options = [], $textdomain = 'cpt')
+function cpt_get_taxonomy_labels(string $taxonomy_name, array $options = [], string $textdomain = 'cpt')
 {
-    $human_friendly = cpt_get_human_friendly($taxonomy_name);
+    $human_friendly = app_get_human_friendly($taxonomy_name);
     $singular       = Pluralizer::singular($human_friendly);
     $plural         = Pluralizer::plural($human_friendly);
 
@@ -81,9 +69,7 @@ function cpt_get_taxonomy_labels(string $taxonomy_name, $options = [], $textdoma
         'not_found'                  => sprintf(__('No %s found', $textdomain), $plural),
     ];
 
-    $labels = wp_parse_args($options, $labels);
-
-    return $labels;
+    return wp_parse_args($options, $labels);
 }
 
 /**
