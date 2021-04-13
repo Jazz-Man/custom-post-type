@@ -5,85 +5,69 @@ namespace JazzMan\Post;
 use JazzMan\Pluralizer\Pluralizer;
 
 /**
- * @param string $name
- *
- * @return string
- */
-function cpt_get_human_friendly(string $name = '')
-{
-    return ucwords(strtolower(str_replace(['-', '_'], ' ', $name)));
-}
-
-/**
  * @param string $post_type
  * @param array  $options
- * @param string $textdomain
  *
  * @return array
  */
-function cpt_get_post_type_labels(string $post_type, $options = [], $textdomain = 'cpt')
+function cpt_get_post_type_labels(string $post_type, $options = [])
 {
-    $human_friendly = cpt_get_human_friendly($post_type);
+    $human_friendly = app_get_human_friendly($post_type);
     $singular       = Pluralizer::singular($human_friendly);
     $plural         = Pluralizer::plural($human_friendly);
 
     $labels = [
-        'name'               => sprintf(__('%s', $textdomain), $plural),
-        'singular_name'      => sprintf(__('%s', $textdomain), $singular),
-        'menu_name'          => sprintf(__('%s', $textdomain), $plural),
-        'all_items'          => sprintf(__('%s', $textdomain), $plural),
-        'add_new'            => __('Add New', $textdomain),
-        'add_new_item'       => sprintf(__('Add New %s', $textdomain), $singular),
-        'edit_item'          => sprintf(__('Edit %s', $textdomain), $singular),
-        'new_item'           => sprintf(__('New %s', $textdomain), $singular),
-        'view_item'          => sprintf(__('View %s', $textdomain), $singular),
-        'search_items'       => sprintf(__('Search %s', $textdomain), $plural),
-        'not_found'          => sprintf(__('No %s found', $textdomain), $plural),
-        'not_found_in_trash' => sprintf(__('No %s found in Trash', $textdomain), $plural),
-        'parent_item_colon'  => sprintf(__('Parent %s:', $textdomain), $singular),
+        'name'               => $plural,
+        'singular_name'      => $singular,
+        'menu_name'          => $plural,
+        'all_items'          => $plural,
+        'add_new'            => sprintf('Add New %s', $singular),
+        'add_new_item'       => sprintf('Add New %s', $singular),
+        'edit_item'          => sprintf('Edit %s', $singular),
+        'new_item'           => sprintf('New %s', $singular),
+        'view_item'          => sprintf('View %s', $singular),
+        'search_items'       => sprintf('Search %s', $plural),
+        'not_found'          => sprintf('No %s found', $plural),
+        'not_found_in_trash' => sprintf('No %s found in Trash', $plural),
+        'parent_item_colon'  => sprintf('Parent %s:', $singular),
     ];
 
-    $labels = wp_parse_args($options, $labels);
-
-    return $labels;
+    return wp_parse_args($options, $labels);
 }
 
 /**
- * @param string $taxonomy_name
- * @param array  $options
- * @param string $textdomain
+ * @param  string  $taxonomy_name
+ * @param  array  $options
  *
  * @return array
  */
-function cpt_get_taxonomy_labels(string $taxonomy_name, $options = [], $textdomain = 'cpt')
+function cpt_get_taxonomy_labels(string $taxonomy_name, array $options = [])
 {
-    $human_friendly = cpt_get_human_friendly($taxonomy_name);
+    $human_friendly = app_get_human_friendly($taxonomy_name);
     $singular       = Pluralizer::singular($human_friendly);
     $plural         = Pluralizer::plural($human_friendly);
 
     $labels = [
-        'name'                       => sprintf(__('%s', $textdomain), $plural),
-        'singular_name'              => sprintf(__('%s', $textdomain), $singular),
-        'menu_name'                  => sprintf(__('%s', $textdomain), $plural),
-        'all_items'                  => sprintf(__('All %s', $textdomain), $plural),
-        'edit_item'                  => sprintf(__('Edit %s', $textdomain), $singular),
-        'view_item'                  => sprintf(__('View %s', $textdomain), $singular),
-        'update_item'                => sprintf(__('Update %s', $textdomain), $singular),
-        'add_new_item'               => sprintf(__('Add New %s', $textdomain), $singular),
-        'new_item_name'              => sprintf(__('New %s Name', $textdomain), $singular),
-        'parent_item'                => sprintf(__('Parent %s', $textdomain), $plural),
-        'parent_item_colon'          => sprintf(__('Parent %s:', $textdomain), $plural),
-        'search_items'               => sprintf(__('Search %s', $textdomain), $plural),
-        'popular_items'              => sprintf(__('Popular %s', $textdomain), $plural),
-        'separate_items_with_commas' => sprintf(__('Seperate %s with commas', $textdomain), $plural),
-        'add_or_remove_items'        => sprintf(__('Add or remove %s', $textdomain), $plural),
-        'choose_from_most_used'      => sprintf(__('Choose from most used %s', $textdomain), $plural),
-        'not_found'                  => sprintf(__('No %s found', $textdomain), $plural),
+        'name'                       => $plural,
+        'singular_name'              => $singular,
+        'menu_name'                  => $plural,
+        'all_items'                  => sprintf('All %s', $plural),
+        'edit_item'                  => sprintf('Edit %s', $singular),
+        'view_item'                  => sprintf('View %s', $singular),
+        'update_item'                => sprintf('Update %s', $singular),
+        'add_new_item'               => sprintf('Add New %s', $singular),
+        'new_item_name'              => sprintf('New %s Name', $singular),
+        'parent_item'                => sprintf('Parent %s', $plural),
+        'parent_item_colon'          => sprintf('Parent %s:', $plural),
+        'search_items'               => sprintf('Search %s', $plural),
+        'popular_items'              => sprintf('Popular %s', $plural),
+        'separate_items_with_commas' => sprintf('Seperate %s with commas', $plural),
+        'add_or_remove_items'        => sprintf('Add or remove %s', $plural),
+        'choose_from_most_used'      => sprintf('Choose from most used %s', $plural),
+        'not_found'                  => sprintf('No %s found', $plural),
     ];
 
-    $labels = wp_parse_args($options, $labels);
-
-    return $labels;
+    return wp_parse_args($options, $labels);
 }
 
 /**

@@ -9,8 +9,9 @@
         }
     ],
     "require": {
-        "php":">=7.1",
-        "jazzman/pluralizer": "^1.0"
+        "php": ">=7.1",
+        "jazzman/pluralizer": "^1.0",
+        "jazzman/wp-app-config": "^2.1"
     },
     "autoload": {
         "psr-4": {
