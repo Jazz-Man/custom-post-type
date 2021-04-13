@@ -42,7 +42,7 @@ class CustomPostType
     /**
      * @var array
      */
-    private $current_posts_columns = [];
+    private $current_columns = [];
     /**
      * @var array
      */
@@ -107,12 +107,17 @@ class CustomPostType
         add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
         add_filter('post_updated_messages', [$this, 'updatedMessages']);
         add_filter('bulk_post_updated_messages', [$this, 'bulkUpdatedMessages'], 10, 2);
-        add_filter("manage_{$this->post_type}_posts_columns", [$this, 'set_current_posts_columns'], PHP_INT_MAX);
+        add_filter("manage_{$this->post_type}_posts_columns", [$this, 'setCurrentColumns'], PHP_INT_MAX);
     }
 
-    public function set_current_posts_columns($columns)
+    /**
+     * @param  string[]  $columns
+     *
+     * @return array
+     */
+    public function setCurrentColumns(array $columns): array
     {
-        $this->current_posts_columns = $columns;
+        $this->current_columns = $columns;
 
         return $columns;
     }
@@ -426,7 +431,7 @@ class CustomPostType
 
     public function populateAdminColumns(string $column = '', int $post_id = 0)
     {
-        if (!empty($this->current_posts_columns) && !empty($this->current_posts_columns[$column])) {
+        if ( !empty($this->current_columns) && !empty($this->current_columns[$column])) {
             return;
         }
         global $post;
@@ -455,12 +460,12 @@ class CustomPostType
 
                     printf(
                         '<div title="%s List">%s<br class="clear"></div>',
-                        app_get_human_friendly($column),
+                        esc_attr(app_get_human_friendly($column)),
                         implode(', ', $output)
                     );
                 } else {
                     $taxonomy_object = get_taxonomy($column);
-                    printf('No %s', $taxonomy_object->labels->name);
+                    printf('No %s', esc_attr($taxonomy_object->labels->name));
                 }
 
                 break;
@@ -478,13 +483,13 @@ class CustomPostType
                 break;
 
             case 'icon':
-                $link = esc_url(sprintf('post.php?post=%d&action=edit', $post->ID));
+                $link = sprintf('post.php?post=%d&action=edit', $post->ID);
 
                 if (has_post_thumbnail()) {
                     printf(
                         '<a title="%s Thumbnail" href="%s">%s</a>',
                         esc_attr($post->post_title),
-                        $link,
+                        esc_url($link),
                         get_the_post_thumbnail($post_id, [60, 60], [
                             'alt' => $post->post_title,
                         ])
@@ -492,7 +497,7 @@ class CustomPostType
                 } else {
                     printf(
                         '<a title="%3$s Thumbnail" href="%1$s"><img src="%2$s" alt="%3$s"/></a>',
-                        $link,
+                        esc_url($link),
                         esc_url(includes_url('images/crystal/default.png')),
                         esc_attr($post->post_title)
                     );
@@ -521,15 +526,13 @@ class CustomPostType
                     $tax = get_taxonomy($tax_slug);
                     $terms = get_terms($tax_slug, ['orderby' => 'name', 'hide_empty' => false]);
                     if ($terms) {
-                        $options = [
-                            sprintf(
-                                '<option value="0">Show all %s</option>',
-                                esc_attr($tax->label)
-                            ),
-                        ];
+                        $options = sprintf(
+                            '<option value="0">Show all %s</option>',
+                            esc_attr($tax->label)
+                        );
 
                         foreach ($terms as $term) {
-                            $options[] = sprintf(
+                            $options .= sprintf(
                                 '<option value="%s" %s>%s (%d)</option>',
                                 esc_attr($term->slug),
                                 selected($request->get($tax_slug), $term->slug, false),
@@ -540,7 +543,7 @@ class CustomPostType
                         printf(
                             '<select name="%s" class="postform">%s</select>',
                             esc_attr($tax_slug),
-                            implode('', $options)
+                            $options
                         );
                     }
                 }

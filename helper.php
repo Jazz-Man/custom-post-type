@@ -79,7 +79,7 @@ function cpt_get_post_type_archive_post_id(string $post_type)
 {
     global $wpdb;
 
-    $query = $wpdb->prepare(<<<SQL
+    $post_type_archive_id = $wpdb->get_var($wpdb->prepare(<<<SQL
 SELECT 
   ID 
 FROM $wpdb->posts 
@@ -89,10 +89,7 @@ WHERE
   AND post_name = %s 
 LIMIT 1
 SQL
-        , 'hdptap_cpt_archive', $post_type);
-
-
-    $post_type_archive_id = $wpdb->get_var($query);
+        , 'hdptap_cpt_archive', $post_type));
 
     if ($post_type_archive_id !== null) {
         return (int)$post_type_archive_id;
