@@ -47,7 +47,7 @@ class CustomPostType
      */
     private $sortable;
     /**
-     * @var array<string,string>
+     * @var array<string,string|array>
      */
     private $post_type_options;
     /**
@@ -75,7 +75,7 @@ class CustomPostType
      * CustomPostType constructor.
      *
      * @param  string  $post_type_name
-     * @param  array<string,string>  $options
+     * @param  array<string,string|array>  $options
      */
     public function __construct(string $post_type_name, array $options = [])
     {
