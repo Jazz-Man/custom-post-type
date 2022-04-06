@@ -26,7 +26,7 @@
         "phpmd/phpmd": "@stable",
         "roave/security-advisories": "dev-master",
         "roots/wordpress": "^5.7",
-        "szepeviktor/phpstan-wordpress": "^0.7.5"
+        "szepeviktor/phpstan-wordpress": "^1.0.5"
     },
     "extra": {
         "installer-paths": {
