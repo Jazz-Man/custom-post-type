@@ -25,7 +25,7 @@
         "dg/composer-cleaner": "^2.2",
         "phpmd/phpmd": "@stable",
         "roave/security-advisories": "dev-master",
-        "roots/wordpress": "^5.7",
+        "roots/wordpress": "^6.0",
         "szepeviktor/phpstan-wordpress": "^0.7.5"
     },
     "extra": {
