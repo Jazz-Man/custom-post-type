@@ -9,24 +9,27 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": "^7.4|^8.1",
         "jazzman/pluralizer": "^1.0",
-        "jazzman/wp-app-config": "^2.1"
+        "jazzman/wp-app-config": "^2.3"
     },
     "autoload": {
         "psr-4": {
-            "JazzMan\\Post\\": ""
+            "JazzMan\\Post\\": "src"
         },
         "files": [
-            "helper.php"
+            "src/helper.php"
         ]
     },
     "require-dev": {
-        "dg/composer-cleaner": "^2.2",
+        "jazzman/php-cs-fixer-rules": "^0.1.2",
         "phpmd/phpmd": "@stable",
-        "roave/security-advisories": "dev-master",
-        "roots/wordpress": "^5.7",
-        "szepeviktor/phpstan-wordpress": "^0.7.5"
+        "phpstan/extension-installer": "^1.1",
+        "rector/rector": "^0.14.5",
+        "roave/security-advisories": "@dev",
+        "roots/wordpress": "^6.0",
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "vimeo/psalm": "^4.27"
     },
     "extra": {
         "installer-paths": {
@@ -41,6 +44,10 @@
         "preferred-install": "dist",
         "optimize-autoloader": true,
         "classmap-authoritative": true,
-        "apcu-autoloader": true
+        "apcu-autoloader": true,
+        "allow-plugins": {
+            "roots/wordpress-core-installer": true,
+            "phpstan/extension-installer": true
+        }
     }
 }
