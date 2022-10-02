@@ -30,6 +30,15 @@ function cpt_get_post_type_labels(string $post_type, $options = []): array
         'not_found' => sprintf('No %s found', $plural),
         'not_found_in_trash' => sprintf('No %s found in Trash', $plural),
         'parent_item_colon' => sprintf('Parent %s:', $singular),
+        'items_list_navigation' => sprintf('%s list navigation', $plural),
+        'items_list' => sprintf('%s list', $plural),
+        'item_published' => sprintf('%s published', $singular),
+        'item_published_privately' => sprintf('%s published privately.', $singular),
+        'item_reverted_to_draft' => sprintf('%s reverted to draft.', $singular),
+        'item_scheduled' => sprintf('%s scheduled.', $singular),
+        'item_updated' => sprintf('%s updated.', $singular),
+        'item_link' => sprintf('%s Link.', $singular),
+        'item_link_description' => sprintf('A link to a %s.', $singular),
     ];
 
     return wp_parse_args($options, $labels);
@@ -54,6 +63,7 @@ function cpt_get_taxonomy_labels(string $taxonomy_name, array $options = []): ar
         'all_items' => sprintf('All %s', $plural),
         'edit_item' => sprintf('Edit %s', $singular),
         'view_item' => sprintf('View %s', $singular),
+        'view_items' => sprintf('View %s', $plural),
         'update_item' => sprintf('Update %s', $singular),
         'add_new_item' => sprintf('Add New %s', $singular),
         'new_item_name' => sprintf('New %s Name', $singular),
