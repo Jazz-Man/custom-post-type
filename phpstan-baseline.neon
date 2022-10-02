@@ -1,0 +1,146 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Cannot access property \\$name on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
+			count: 2
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:bulkUpdatedMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:bulkUpdatedMessages\\(\\) should return array\\<string, string\\> but returns array\\<string, array\\>\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:fixArchivePostTypeSlug\\(\\) should return string but returns string\\|null\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:makeColumnsSortable\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:makeColumnsSortable\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setCurrentColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setFilters\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setSortable\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, string given\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Parameter \\#1 \\$revision of function wp_post_revision_title expects int\\|object, string given\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Parameter \\#6 \\$callback of function add_submenu_page expects callable\\(\\)\\: mixed, false given\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$filters type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$populateColumns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$postTypeOptions type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$sortable type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$taxonomySettings type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Cannot access property \\$post_content on WP_Post\\|null\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Cannot access property \\$post_title on WP_Post\\|null\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Function JazzMan\\\\Post\\\\cpt_get_post_type_labels\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Function JazzMan\\\\Post\\\\cpt_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Function JazzMan\\\\Post\\\\cpt_get_taxonomy_labels\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Function JazzMan\\\\Post\\\\cpt_get_taxonomy_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/helper.php
+
+		-
+			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, mixed given\\.$#"
+			count: 2
+			path: src/helper.php

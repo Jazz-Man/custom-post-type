@@ -23,13 +23,14 @@
     },
     "require-dev": {
         "jazzman/php-cs-fixer-rules": "^0.1.2",
-        "phpmd/phpmd": "@stable",
         "phpstan/extension-installer": "^1.1",
-        "rector/rector": "^0.14.5",
         "roave/security-advisories": "@dev",
         "roots/wordpress": "^6.0",
-        "szepeviktor/phpstan-wordpress": "^1.1",
-        "vimeo/psalm": "^4.27"
+        "szepeviktor/phpstan-wordpress": "^1.1"
+    },
+    "replace": {
+        "friendsofphp/php-cs-fixer": "*",
+        "phpstan/phpstan": "*"
     },
     "extra": {
         "installer-paths": {
@@ -49,5 +50,31 @@
             "roots/wordpress-core-installer": true,
             "phpstan/extension-installer": true
         }
+    },
+    "scripts": {
+        "rm-cache" : [
+            "phpstan clear-result-cache",
+            "psalm --clear-cache",
+            "psalm --clear-global-cache"
+        ],
+        "init-baseline": [
+            "@init-baseline-phpmd",
+            "@init-baseline-psalm",
+            "@baseline-phpstan"
+        ],
+        "update-baseline": [
+            "@update-baseline-phpmd",
+            "@baseline-phpstan",
+            "@update-baseline-psalm"
+        ],
+        "init-baseline-phpmd": "@phpmd --generate-baseline",
+        "update-baseline-phpmd": "@phpmd --update-baseline",
+        "init-baseline-psalm": "@psalm --set-baseline=psalm-baseline.xml",
+        "update-baseline-psalm": "@psalm --update-baseline=psalm-baseline.xml",
+        "baseline-phpstan": "@phpstan --generate-baseline=phpstan-baseline.neon",
+        "phpstan": "phpstan --no-progress",
+        "phpmd": "phpmd . text phpmd.ruleset.xml --exclude 'cache/*,vendor/*,sample.php'",
+        "psalm": "psalm --config=psalm.xml --show-info=true --stats --no-progress",
+        "php-cs-fixer": "php-cs-fixer fix -vvv --diff"
     }
 }

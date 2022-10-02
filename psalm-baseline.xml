@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.x-dev@">
+  <file src="src/CustomPostType.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>$postarr</code>
+    </ArgumentTypeCoercion>
+    <InvalidArgument occurrences="1">
+      <code>false</code>
+    </InvalidArgument>
+    <InvalidNullableReturnType occurrences="1">
+      <code>string</code>
+    </InvalidNullableReturnType>
+    <InvalidReturnStatement occurrences="1">
+      <code>$messages</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>array&lt;string,string&gt;</code>
+    </InvalidReturnType>
+    <InvalidScalarArgument occurrences="2">
+      <code>$post_id</code>
+      <code>$revision</code>
+    </InvalidScalarArgument>
+    <MixedArgument occurrences="15">
+      <code>$current_post_type</code>
+      <code>$current_post_type</code>
+      <code>$post-&gt;ID</code>
+      <code>$post-&gt;ID</code>
+      <code>$post-&gt;ID</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_type</code>
+      <code>$tax_slug</code>
+      <code>$tax_slug</code>
+      <code>$tax_slug</code>
+      <code>$tax_slug</code>
+      <code>$taxonomy_object-&gt;labels-&gt;name</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$options</code>
+      <code>$options</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="9">
+      <code>$current_post_type</code>
+      <code>$current_post_type</code>
+      <code>$desc</code>
+      <code>$meta</code>
+      <code>$meta_key</code>
+      <code>$post_type_archive_id</code>
+      <code>$sortable_columns[$column]</code>
+      <code>$supports</code>
+      <code>$tax_slug</code>
+    </MixedAssignment>
+    <MixedFunctionCall occurrences="1">
+      <code>\call_user_func($this-&gt;populateColumns[$column], $column, $post)</code>
+    </MixedFunctionCall>
+    <MixedInferredReturnType occurrences="2">
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedPropertyFetch occurrences="9">
+      <code>$current_screen-&gt;base</code>
+      <code>$current_screen-&gt;post_type</code>
+      <code>$post-&gt;ID</code>
+      <code>$post-&gt;ID</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_title</code>
+      <code>$post-&gt;post_type</code>
+    </MixedPropertyFetch>
+    <MixedPropertyTypeCoercion occurrences="1">
+      <code>$columns</code>
+    </MixedPropertyTypeCoercion>
+    <MixedReturnStatement occurrences="2">
+      <code>$desc</code>
+      <code>apply_filters('the_title', $archive_title)</code>
+    </MixedReturnStatement>
+    <MixedReturnTypeCoercion occurrences="2">
+      <code>array&lt;string,array&gt;</code>
+      <code>array_merge($sortable_columns, $columns)</code>
+    </MixedReturnTypeCoercion>
+    <NullableReturnStatement occurrences="1">
+      <code>$original_slug</code>
+    </NullableReturnStatement>
+    <PossibleRawObjectIteration occurrences="1">
+      <code>$terms</code>
+    </PossibleRawObjectIteration>
+    <PossiblyFalseArgument occurrences="1">
+      <code>wp_post_revision_title($revision, false)</code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidPropertyFetch occurrences="2">
+      <code>$post-&gt;post_date</code>
+      <code>$post-&gt;post_name</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="2">
+      <code>$current_post_type</code>
+      <code>$current_post_type</code>
+    </PossiblyNullArgument>
+    <PossiblyNullPropertyFetch occurrences="2">
+      <code>get_queried_object()-&gt;name</code>
+      <code>get_queried_object()-&gt;name</code>
+    </PossiblyNullPropertyFetch>
+    <PropertyNotSetInConstructor occurrences="6">
+      <code>$exisitingTaxonomies</code>
+      <code>$filters</code>
+      <code>$populateColumns</code>
+      <code>$sortable</code>
+      <code>$taxonomies</code>
+      <code>$taxonomySettings</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCondition occurrences="2">
+      <code>\is_array($this-&gt;exisitingTaxonomies)</code>
+      <code>\is_array($this-&gt;taxonomySettings)</code>
+    </RedundantCondition>
+    <UndefinedMagicPropertyFetch occurrences="2">
+      <code>get_queried_object()-&gt;name</code>
+      <code>get_queried_object()-&gt;name</code>
+    </UndefinedMagicPropertyFetch>
+    <UnusedVariable occurrences="1">
+      <code>$column</code>
+    </UnusedVariable>
+  </file>
+  <file src="src/helper.php">
+    <InvalidNullableReturnType occurrences="2">
+      <code>bool|string</code>
+      <code>bool|string</code>
+    </InvalidNullableReturnType>
+    <InvalidScalarArgument occurrences="2">
+      <code>$archive_page_id</code>
+      <code>$archive_page_id</code>
+    </InvalidScalarArgument>
+    <MixedArgument occurrences="2">
+      <code>$archive_page_id</code>
+      <code>$archive_page_id</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$archive_page_id</code>
+      <code>$archive_page_id</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="2">
+      <code>get_var</code>
+      <code>prepare</code>
+    </MixedMethodCall>
+    <MixedPropertyFetch occurrences="1">
+      <code>$wpdb-&gt;posts</code>
+    </MixedPropertyFetch>
+    <NullableReturnStatement occurrences="2">
+      <code>get_post($archive_page_id)-&gt;post_content</code>
+      <code>get_post($archive_page_id)-&gt;post_title</code>
+    </NullableReturnStatement>
+    <PossiblyInvalidPropertyFetch occurrences="2">
+      <code>get_post($archive_page_id)-&gt;post_content</code>
+      <code>get_post($archive_page_id)-&gt;post_title</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullPropertyFetch occurrences="2">
+      <code>get_post($archive_page_id)-&gt;post_content</code>
+      <code>get_post($archive_page_id)-&gt;post_title</code>
+    </PossiblyNullPropertyFetch>
+  </file>
+</files>
