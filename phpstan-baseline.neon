@@ -1,22 +1,17 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Cannot access property \\$labels on WP_Taxonomy\\|false\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
 			message: "#^Cannot access property \\$name on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
 			count: 2
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:bulkUpdatedMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:bulkUpdatedMessages\\(\\) should return array\\<string, string\\> but returns array\\<string, array\\>\\.$#"
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:addAdminColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -26,27 +21,7 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
 			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:makeColumnsSortable\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:makeColumnsSortable\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setCurrentColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -56,27 +31,22 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setSortable\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) should return array\\<string, array\\<string, mixed\\>\\> but returns array\\<string, array\\<int\\|string, mixed\\>\\>\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
+			message: "#^Offset 0 does not exist on array\\<string, mixed\\>\\.$#"
+			count: 2
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Offset 1 on array\\<string, mixed\\> in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, string given\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Parameter \\#1 \\$revision of function wp_post_revision_title expects int\\|object, string given\\.$#"
+			message: "#^Parameter \\#3 \\$args of function register_taxonomy expects array\\{labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, publicly_queryable\\?\\: bool, hierarchical\\?\\: bool, show_ui\\?\\: bool, show_in_menu\\?\\: bool, show_in_nav_menus\\?\\: bool, \\.\\.\\.\\}, mixed given\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -96,17 +66,7 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$postTypeOptions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$sortable type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$taxonomySettings type has no value type specified in iterable type array\\.$#"
+			message: "#^Result of && is always false\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 

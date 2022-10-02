@@ -13,13 +13,7 @@
     <InvalidReturnStatement occurrences="1">
       <code>$messages</code>
     </InvalidReturnStatement>
-    <InvalidReturnType occurrences="1">
-      <code>array&lt;string,string&gt;</code>
-    </InvalidReturnType>
-    <InvalidScalarArgument occurrences="2">
-      <code>$post_id</code>
-      <code>$revision</code>
-    </InvalidScalarArgument>
+    <InvalidReturnType occurrences="1"/>
     <MixedArgument occurrences="15">
       <code>$current_post_type</code>
       <code>$current_post_type</code>
@@ -31,13 +25,9 @@
       <code>$post-&gt;post_title</code>
       <code>$post-&gt;post_title</code>
       <code>$post-&gt;post_type</code>
-      <code>$tax_slug</code>
-      <code>$tax_slug</code>
-      <code>$tax_slug</code>
-      <code>$tax_slug</code>
       <code>$taxonomy_object-&gt;labels-&gt;name</code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="2">
+    <MixedArgumentTypeCoercion occurrences="1">
       <code>$options</code>
       <code>$options</code>
     </MixedArgumentTypeCoercion>
@@ -50,7 +40,6 @@
       <code>$post_type_archive_id</code>
       <code>$sortable_columns[$column]</code>
       <code>$supports</code>
-      <code>$tax_slug</code>
     </MixedAssignment>
     <MixedFunctionCall occurrences="1">
       <code>\call_user_func($this-&gt;populateColumns[$column], $column, $post)</code>
@@ -70,15 +59,11 @@
       <code>$post-&gt;post_title</code>
       <code>$post-&gt;post_type</code>
     </MixedPropertyFetch>
-    <MixedPropertyTypeCoercion occurrences="1">
-      <code>$columns</code>
-    </MixedPropertyTypeCoercion>
     <MixedReturnStatement occurrences="2">
       <code>$desc</code>
       <code>apply_filters('the_title', $archive_title)</code>
     </MixedReturnStatement>
     <MixedReturnTypeCoercion occurrences="2">
-      <code>array&lt;string,array&gt;</code>
       <code>array_merge($sortable_columns, $columns)</code>
     </MixedReturnTypeCoercion>
     <NullableReturnStatement occurrences="1">
@@ -102,18 +87,11 @@
       <code>get_queried_object()-&gt;name</code>
       <code>get_queried_object()-&gt;name</code>
     </PossiblyNullPropertyFetch>
-    <PropertyNotSetInConstructor occurrences="6">
-      <code>$exisitingTaxonomies</code>
+    <PropertyNotSetInConstructor occurrences="2">
       <code>$filters</code>
-      <code>$populateColumns</code>
       <code>$sortable</code>
-      <code>$taxonomies</code>
-      <code>$taxonomySettings</code>
     </PropertyNotSetInConstructor>
-    <RedundantCondition occurrences="2">
-      <code>\is_array($this-&gt;exisitingTaxonomies)</code>
-      <code>\is_array($this-&gt;taxonomySettings)</code>
-    </RedundantCondition>
+    <RedundantCondition occurrences="1"/>
     <UndefinedMagicPropertyFetch occurrences="2">
       <code>get_queried_object()-&gt;name</code>
       <code>get_queried_object()-&gt;name</code>

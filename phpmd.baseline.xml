@@ -5,6 +5,5 @@
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="src/CustomPostType.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/CustomPostType.php"/>
   <violation rule="PHPMD\Rule\UnusedLocalVariable" file="src/CustomPostType.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="src/CustomPostType.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="src/helper.php"/>
 </phpmd-baseline>
