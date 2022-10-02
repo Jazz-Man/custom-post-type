@@ -575,23 +575,26 @@ class CustomPostType {
      */
     public function addAdminColumns(array $columns = []): array {
         if (!empty($this->columns)) {
-            $new_columns = [];
+            $newColumns = [];
             $after = $this->getColumnPositionAfter();
 
             foreach ($columns as $key => $title) {
-                $new_columns[$key] = $title;
+                $newColumns[$key] = $title;
 
                 if ($key === $after && !empty($this->taxonomies)) {
                     foreach ($this->taxonomies as $tax) {
                         if ('category' !== $tax && 'post_tag' !== $tax) {
-                            $taxonomy_object = get_taxonomy($tax);
-                            $new_columns[$tax] = esc_attr($taxonomy_object->labels->name);
+                            $taxonomy = get_taxonomy($tax);
+
+                            if ($taxonomy instanceof \WP_Taxonomy) {
+                                $newColumns[$tax] = esc_attr($taxonomy->labels->name);
+                            }
                         }
                     }
                 }
             }
 
-            return $new_columns;
+            return $newColumns;
         }
 
         return $this->columns;
