@@ -85,7 +85,7 @@ class CustomPostType
 
         add_action('init', [__CLASS__, 'registerCptArchivePostType']);
         add_action('registered_post_type', [__CLASS__, 'createArchivePages'], 10, 2);
-        add_action('parent_file', [__CLASS__, 'adminMenuCorrection']);
+        add_filter('parent_file', [__CLASS__, 'adminMenuCorrection']);
         add_action('admin_menu', [__CLASS__, 'addAdminMenuArchivePages'], 99);
         add_filter('get_the_archive_title', [__CLASS__, 'archiveTitle'], 10, 1);
         add_filter('get_the_archive_description', [__CLASS__, 'archiveDescription'], 10, 1);
@@ -94,7 +94,6 @@ class CustomPostType
         add_action('init', [$this, 'registerTaxonomies']);
         add_action('init', [$this, 'registerPostType']);
         add_action('init', [$this, 'registerExisitingTaxonomies']);
-        add_filter("manage_edit-{$this->post_type}_columns", [$this, 'addAdminColumns']);
         add_action("manage_{$this->post_type}_posts_custom_column", [$this, 'populateAdminColumns'], 10, 2);
         add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
         add_filter('post_updated_messages', [$this, 'updatedMessages']);
@@ -191,7 +190,7 @@ class CustomPostType
      */
     public static function adminMenuCorrection(string $parent_file = '')
     {
-        global $current_screen;
+        global $current_screen, $wp_query, $menu;
         $request = app_get_request_data();
 
         $post_id = $request->getDigits('post');
@@ -369,7 +368,7 @@ class CustomPostType
 
     /**
      * @param  string  $taxonomy_name
-     * @param  array<string,string>  $options
+     * @param  array<string,mixed>  $options
      */
     public function registerTaxonomy(string $taxonomy_name, array $options = []): void
     {
@@ -407,64 +406,7 @@ class CustomPostType
         }
     }
 
-    /**
-     * @param array<string,string> $columns
-     *
-     * @return array
-     */
-    public function addAdminColumns(array $columns = []): array
-    {
-        if (null === $this->columns) {
-            $new_columns = [];
-            $after = $this->getColumnPositionAfter();
-
-            foreach ($columns as $key => $title) {
-                $new_columns[$key] = $title;
-                if ($key === $after && \is_array($this->taxonomies)) {
-                    foreach ($this->taxonomies as $tax) {
-                        if ('category' !== $tax && 'post_tag' !== $tax) {
-                            $taxonomy_object = get_taxonomy($tax);
-                            $new_columns[$tax] = esc_attr($taxonomy_object->labels->name);
-                        }
-                    }
-                }
-            }
-
-            return $new_columns;
-        }
-
-        return $this->columns;
-    }
-
-    private function getColumnPositionAfter(): string
-    {
-        $after = '';
-
-        switch (true) {
-            case 'post' === $this->post_type && \is_array($this->taxonomies):
-                if (\in_array('post_tag', $this->taxonomies)) {
-                    $after = 'tags';
-                } elseif (\in_array('category', $this->taxonomies)) {
-                    $after = 'categories';
-                }
-
-                break;
-
-            case post_type_supports($this->post_type, 'author'):
-                $after = 'author';
-
-                break;
-
-            default:
-                $after = 'title';
-
-                break;
-        }
-
-        return $after;
-    }
-
-    private function printTermListColumn(int $post_id, string $column): void
+	private function printTermListColumn(int $post_id, string $column): void
     {
         global $post;
         /** @var \WP_Term[] $terms */
