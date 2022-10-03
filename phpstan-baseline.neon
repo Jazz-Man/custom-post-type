@@ -1,19 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Cannot access property \\$name on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
-			count: 1
-			path: src/ArchivePostType.php
-
-		-
 			message: "#^Parameter \\#6 \\$callback of function add_submenu_page expects callable\\(\\)\\: mixed, false given\\.$#"
 			count: 1
 			path: src/ArchivePostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:addAdminColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
 
 		-
 			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -22,11 +12,6 @@ parameters:
 
 		-
 			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:setFilters\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -66,16 +51,6 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$filters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$populateColumns type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
 			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$taxonomySettings type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
@@ -86,19 +61,9 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Cannot access property \\$post_content on WP_Post\\|null\\.$#"
+			message: "#^Ternary operator condition is always true\\.$#"
 			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Cannot access property \\$post_title on WP_Post\\|null\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Function JazzMan\\\\Post\\\\cpt_get_post_type_labels\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/helper.php
+			path: src/CustomPostType.php
 
 		-
 			message: "#^Function JazzMan\\\\Post\\\\cpt_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -106,16 +71,6 @@ parameters:
 			path: src/helper.php
 
 		-
-			message: "#^Function JazzMan\\\\Post\\\\cpt_get_taxonomy_labels\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/helper.php
-
-		-
 			message: "#^Function JazzMan\\\\Post\\\\cpt_get_taxonomy_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/helper.php
-
-		-
-			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, int\\<min, \\-1\\>\\|int\\<1, max\\>\\|true given\\.$#"
-			count: 2
 			path: src/helper.php

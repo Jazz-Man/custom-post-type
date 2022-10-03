@@ -5,17 +5,7 @@
       <code>$messages</code>
     </InvalidReturnStatement>
     <InvalidReturnType occurrences="1"/>
-    <MixedArgument occurrences="15">
-      <code>$post-&gt;ID</code>
-      <code>$post-&gt;ID</code>
-      <code>$post-&gt;ID</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_type</code>
-      <code>$taxonomy_object-&gt;labels-&gt;name</code>
-    </MixedArgument>
+    <MixedArgument occurrences="3"/>
     <MixedArgumentTypeCoercion occurrences="1">
       <code>$options</code>
       <code>$options</code>
@@ -25,66 +15,17 @@
       <code>$meta_key</code>
       <code>$sortable_columns[$column]</code>
     </MixedAssignment>
-    <MixedFunctionCall occurrences="1">
-      <code>\call_user_func($this-&gt;populateColumns[$column], $column, $post)</code>
-    </MixedFunctionCall>
-    <MixedPropertyFetch occurrences="7">
-      <code>$post-&gt;ID</code>
-      <code>$post-&gt;ID</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_title</code>
-      <code>$post-&gt;post_type</code>
-    </MixedPropertyFetch>
-    <MixedReturnTypeCoercion occurrences="2">
-      <code>array_merge($sortable_columns, $columns)</code>
-    </MixedReturnTypeCoercion>
     <PossibleRawObjectIteration occurrences="1">
       <code>$terms</code>
     </PossibleRawObjectIteration>
     <PossiblyFalseArgument occurrences="1">
       <code>wp_post_revision_title($revision, false)</code>
     </PossiblyFalseArgument>
-    <PossiblyInvalidPropertyFetch occurrences="1">
-      <code>$post-&gt;post_date</code>
-    </PossiblyInvalidPropertyFetch>
     <PropertyNotSetInConstructor occurrences="2">
-      <code>$filters</code>
       <code>$sortable</code>
     </PropertyNotSetInConstructor>
-    <RedundantCondition occurrences="1"/>
     <UnusedVariable occurrences="1">
       <code>$column</code>
     </UnusedVariable>
-  </file>
-  <file src="src/helper.php">
-    <InvalidNullableReturnType occurrences="2">
-      <code>bool|string</code>
-      <code>bool|string</code>
-    </InvalidNullableReturnType>
-    <InvalidScalarArgument occurrences="2">
-      <code>$archive_page_id</code>
-      <code>$archive_page_id</code>
-    </InvalidScalarArgument>
-    <MixedMethodCall occurrences="2">
-      <code>get_var</code>
-      <code>prepare</code>
-    </MixedMethodCall>
-    <MixedPropertyFetch occurrences="1">
-      <code>$wpdb-&gt;posts</code>
-    </MixedPropertyFetch>
-    <NullableReturnStatement occurrences="2">
-      <code>get_post($archive_page_id)-&gt;post_content</code>
-      <code>get_post($archive_page_id)-&gt;post_title</code>
-    </NullableReturnStatement>
-    <PossiblyInvalidPropertyFetch occurrences="2">
-      <code>get_post($archive_page_id)-&gt;post_content</code>
-      <code>get_post($archive_page_id)-&gt;post_title</code>
-    </PossiblyInvalidPropertyFetch>
-    <PossiblyNullPropertyFetch occurrences="2">
-      <code>get_post($archive_page_id)-&gt;post_content</code>
-      <code>get_post($archive_page_id)-&gt;post_title</code>
-    </PossiblyNullPropertyFetch>
   </file>
 </files>
