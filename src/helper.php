@@ -98,10 +98,10 @@ if (!function_exists('app_string_pluralizer')) {
      * @return array{singular:string, plural:string}
      */
     function app_string_pluralizer(string $name): array {
-        $human_friendly = app_get_human_friendly($name);
+        $humanFriendly = app_get_human_friendly($name);
 
-        $singular = Pluralizer::singular($human_friendly);
-        $plural = Pluralizer::plural($human_friendly);
+        $singular = Pluralizer::singular($humanFriendly);
+        $plural = Pluralizer::plural($humanFriendly);
 
         return compact('singular', 'plural');
     }

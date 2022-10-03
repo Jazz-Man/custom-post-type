@@ -343,8 +343,8 @@ class CustomPostType {
         return $messages;
     }
 
-    private function initPostTypeConfig(string $post_type_name): void {
-        $this->post_type_name = $post_type_name;
+    private function initPostTypeConfig(string $postType): void {
+        $this->post_type_name = $postType;
 
         $this->post_type = sanitize_key($this->post_type_name);
 
@@ -372,16 +372,16 @@ class CustomPostType {
         return array_replace_recursive($defaults, $options);
     }
 
-    private function printIconColumn(int $post_id, \WP_Post $post): void {
+    private function printIconColumn(int $postId, \WP_Post $post): void {
         $link = sprintf('post.php?post=%d&action=edit', $post->ID);
 
-        if (has_post_thumbnail($post_id)) {
+        if (has_post_thumbnail($postId)) {
             printf(
                 '<a title="%s Thumbnail" href="%s">%s</a>',
                 esc_attr($post->post_title),
                 esc_url($link),
                 get_the_post_thumbnail(
-                    $post_id,
+                    $postId,
                     [60, 60],
                     [
                         'alt' => $post->post_title,
@@ -398,15 +398,15 @@ class CustomPostType {
         }
     }
 
-    private function printMetaColumn(int $post_id, string $meta_key, \WP_Post $post): void {
+    private function printMetaColumn(int $postId, string $metaKey, \WP_Post $post): void {
         /** @var null|string $meta */
-        $meta = get_post_meta($post_id, $meta_key, true);
+        $meta = get_post_meta($postId, $metaKey, true);
 
         if (!empty($meta)) {
             printf(
                 '<span title="%s Meta: %s">%s</span>',
                 esc_attr($post->post_title),
-                esc_attr($meta_key),
+                esc_attr($metaKey),
                 esc_attr($meta)
             );
         }
