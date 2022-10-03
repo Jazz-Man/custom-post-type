@@ -35,7 +35,7 @@ class ArchivePostType implements AutoloadInterface {
             $post_id = self::getPostTypeArchiveId($object->name);
 
             if (!empty($post_id)) {
-                $this->archivePost = get_post( $post_id );
+                $this->archivePost = get_post($post_id);
             }
         }
     }
@@ -48,7 +48,8 @@ class ArchivePostType implements AutoloadInterface {
              */
             $labels = cpt_get_post_type_labels('Archive Pages');
 
-            $supports = apply_filters(
+            /** @var string[] $supports */
+            $supports = (array) apply_filters(
                 'hdptap_cpt_archive_supports',
                 [
                     'title',

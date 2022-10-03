@@ -5,7 +5,7 @@ namespace JazzMan\Post;
 use JazzMan\Pluralizer\Pluralizer;
 
 /**
- * @param  array<string,string>  $options
+ * @param array<string,string> $options
  */
 function cpt_get_post_type_labels(string $post_type, array $options = []): array {
     $pluralizer = cpt_string_pluralizer($post_type);
@@ -39,10 +39,7 @@ function cpt_get_post_type_labels(string $post_type, array $options = []): array
 }
 
 /**
- * @param  string  $taxonomy
- * @param  array<string,string>  $options
- *
- * @return array
+ * @param array<string,string> $options
  */
 function cpt_get_taxonomy_labels(string $taxonomy, array $options = []): array {
     $pluralizer = cpt_string_pluralizer($taxonomy);

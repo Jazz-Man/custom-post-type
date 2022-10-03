@@ -206,7 +206,7 @@ class CustomPostType {
         if (!empty($this->taxonomySettings)) {
             foreach ($this->taxonomySettings as $taxonomy => $options) {
                 if (taxonomy_exists($taxonomy)) {
-                    $this->exisitingTaxonomies[] = (string) $taxonomy;
+                    $this->exisitingTaxonomies[] = $taxonomy;
                 } else {
                     register_taxonomy($taxonomy, $this->post_type, $options);
                 }
@@ -270,7 +270,9 @@ class CustomPostType {
     /**
      * @param array<string,array<string,mixed>> $messages
      *
-     * @return array<array-key,array<string,mixed>>
+     * @return array[]
+     *
+     * @psalm-return array<string, array<int|string, mixed>>
      */
     public function updatedMessages(array $messages = []): array {
         $post = get_post();

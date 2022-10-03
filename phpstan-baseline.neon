@@ -21,21 +21,6 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:updatedMessages\\(\\) should return array\\<string, array\\<string, mixed\\>\\> but returns array\\<string, array\\<int\\|string, mixed\\>\\>\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Offset 0 does not exist on array\\<string, mixed\\>\\.$#"
-			count: 2
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Offset 1 on array\\<string, mixed\\> in isset\\(\\) does not exist\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
 			message: "#^PHPDoc tag @var above a method has no effect\\.$#"
 			count: 1
 			path: src/CustomPostType.php
@@ -56,17 +41,7 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$taxonomySettings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Result of && is always false\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^Ternary operator condition is always true\\.$#"
+			message: "#^Parameter \\#3 \\$args of function register_taxonomy expects array\\{labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, publicly_queryable\\?\\: bool, hierarchical\\?\\: bool, show_ui\\?\\: bool, show_in_menu\\?\\: bool, show_in_nav_menus\\?\\: bool, \\.\\.\\.\\}, mixed given\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
