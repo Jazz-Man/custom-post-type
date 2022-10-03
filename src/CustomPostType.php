@@ -10,10 +10,6 @@ class CustomPostType {
 
     public string $post_type_name;
 
-    private static string $archivePostType = 'hdptap_cpt_archive';
-
-    private static bool $addArchivePage = false;
-
     /**
      * @var string[]
      */
@@ -44,7 +40,46 @@ class CustomPostType {
     private array $taxonomies = [];
 
     /**
-     * @var array<string,mixed>
+     * @var array[]       {
+     * @var string[]      $labels
+     * @var string        $description
+     * @var bool          $public
+     * @var bool          $publicly_queryable
+     * @var bool          $hierarchical
+     * @var bool          $show_ui
+     * @var bool          $show_in_menu
+     * @var bool          $show_in_nav_menus
+     * @var bool          $show_in_rest
+     * @var string        $rest_base
+     * @var string        $rest_namespace
+     * @var string        $rest_controller_class
+     * @var bool          $show_tagcloud
+     * @var bool          $show_in_quick_edit
+     * @var bool          $show_admin_column
+     * @var bool|callable $meta_box_cb
+     * @var callable      $meta_box_sanitize_cb
+     * @var string[]      $capabilities {
+     * @var string        $manage_terms
+     * @var string        $edit_terms
+     * @var string        $delete_terms
+     * @var string        $assign_terms
+     *                    }
+     * @var array|bool    $rewrite {
+     * @var string        $slug
+     * @var bool          $with_front
+     * @var bool          $hierarchical
+     * @var int           $ep_mask
+     *                    }
+     * @var bool|string   $query_var
+     * @var callable      $update_count_callback
+     * @var array|string  $default_term {
+     * @var string        $name
+     * @var string        $slug
+     * @var string        $description
+     *                    }
+     * @var bool          $sort
+     * @var bool          $_builtin
+     *                    }
      */
     private array $taxonomySettings = [];
 
@@ -67,212 +102,19 @@ class CustomPostType {
 
         $this->postTypeOptions = $options;
 
-        add_action('init', [__CLASS__, 'registerCptArchivePostType']);
-        add_action('registered_post_type', [__CLASS__, 'createArchivePages'], 10, 2);
-        add_filter('parent_file', [__CLASS__, 'adminMenuCorrection']);
-        add_action('admin_menu', [__CLASS__, 'addAdminMenuArchivePages'], 99);
-        add_filter('get_the_archive_title', [__CLASS__, 'archiveTitle'], 10, 1);
-        add_filter('get_the_archive_description', [__CLASS__, 'archiveDescription'], 10, 1);
-        add_filter('pre_wp_unique_post_slug', [__CLASS__, 'fixArchivePostTypeSlug'], 10, 5);
-
         add_action('init', [$this, 'registerTaxonomies']);
         add_action('init', [$this, 'registerPostType']);
         add_action('init', [$this, 'registerExisitingTaxonomies']);
-        add_filter("manage_edit-{$this->post_type}_columns", [$this, 'addAdminColumns']);
-        add_action("manage_{$this->post_type}_posts_custom_column", [$this, 'populateAdminColumns'], 10, 2);
-        add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
-        add_filter('post_updated_messages', [$this, 'updatedMessages']);
+
+		add_filter("manage_edit-{$this->post_type}_columns", [$this, 'addAdminColumns']);
+		add_action("manage_{$this->post_type}_posts_custom_column", [$this, 'populateAdminColumns'], 10, 2);
+
+		add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
+
+		add_filter('post_updated_messages', [$this, 'updatedMessages']);
         add_filter('bulk_post_updated_messages', [$this, 'bulkUpdatedMessages'], 10, 2);
-        add_filter("manage_{$this->post_type}_posts_columns", [$this, 'setCurrentColumns'], PHP_INT_MAX);
-    }
 
-    public static function archiveDescription(string $desc = ''): string {
-        // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
-            return $desc;
-        }
-        // get the current post type.
-        $current_post_type = get_queried_object()->name;
-
-        // get the post type archive desc for this post type.
-
-        $archive_content = cpt_get_post_type_archive_content($current_post_type);
-
-        // if we have a desc.
-
-        if (!empty($archive_content)) {
-            $desc = apply_filters('the_content', $archive_content);
-        }
-
-        return $desc;
-    }
-
-    public static function archiveTitle(string $title = ''): string {
-        // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
-            return $title;
-        }
-        // get the current post type.
-        $current_post_type = get_queried_object()->name;
-        // get the post type archive title for this post type.
-        $archive_title = cpt_get_post_type_archive_title($current_post_type);
-
-        if (!empty($archive_title)) {
-            return apply_filters('the_title', $archive_title);
-        }
-
-        return $title;
-    }
-
-    public static function addAdminMenuArchivePages(): void {
-        $post_type_object = get_post_type_object(self::$archivePostType);
-
-        if (null !== $post_type_object) {
-            /** @var \WP_Post[] $post_types */
-            $post_types = get_posts(
-                [
-                    'post_type' => self::$archivePostType,
-                    'post_status' => 'publish',
-                    'numberposts' => -1,
-                ]
-            );
-
-            if (!empty($post_types)) {
-                foreach ($post_types as $post_type) {
-                    // add the menu item for this post type.
-                    add_submenu_page(
-                        sprintf('edit.php?post_type=%s', esc_attr($post_type->post_name)),
-                        'Archive Page',
-                        'Archive Page',
-                        'edit_posts',
-                        sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID),
-                        false
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public static function adminMenuCorrection(string $parent_file = '') {
-        global $current_screen;
-
-        /** @var null|int $postId */
-        $postId = filter_input(INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT);
-        // if this is a post edit screen for the archive page post type.
-        if (!empty($postId) && 'post' === $current_screen->base && self::$archivePostType === $current_screen->post_type) {
-            // get the plugin options.
-
-            $post = get_post($postId);
-
-            // if we have an archive post type returned.
-            if (!empty($post)) {
-                // set the parent file to the archive post type.
-                $parent_file = sprintf('edit.php?post_type=%s', esc_attr($post->post_name));
-            }
-        }
-
-        return $parent_file;
-    }
-
-    public static function registerCptArchivePostType(): void {
-        if (!post_type_exists(self::$archivePostType)) {
-            /**
-             * Lets register the conditions post type
-             * post type name is docp_condition.
-             */
-            $labels = cpt_get_post_type_labels('Archive Pages');
-
-            self::$addArchivePage = false;
-
-            $supports = apply_filters(
-                'hdptap_cpt_archive_supports',
-                [
-                    'title',
-                    'editor',
-                    'thumbnail',
-                ]
-            );
-
-            register_post_type(
-                self::$archivePostType,
-                [
-                    'description' => 'Archive posts associated with each post type.',
-                    'public' => false,
-                    'show_in_nav_menus' => false,
-                    'show_in_admin_bar' => false,
-                    'exclude_from_search' => true,
-                    'show_ui' => true,
-                    'show_in_menu' => true,
-                    'can_export' => true,
-                    'delete_with_user' => false,
-                    'hierarchical' => false,
-                    'has_archive' => false,
-                    'menu_icon' => 'dashicons-media-text',
-                    'query_var' => 'hdptap_cpt_archive',
-                    'menu_position' => 26,
-                    'show_in_rest' => true,
-                    'labels' => $labels,
-                    'supports' => $supports,
-                ]
-            );
-        }
-    }
-
-    /**
-     * @param null|string $original_slug
-     * @param string      $slug
-     * @param int         $post_ID
-     * @param string      $post_status
-     * @param string      $post_type
-     *
-     * @return string
-     */
-    public static function fixArchivePostTypeSlug(
-        $original_slug,
-        $slug,
-        $post_ID,
-        $post_status,
-        $post_type
-    ) {
-        if ($post_type === self::$archivePostType) {
-            return $slug;
-        }
-
-        return $original_slug;
-    }
-
-    /**
-     * @param string        $post_type
-     * @param \WP_Post_Type $args
-     */
-    public static function createArchivePages($post_type, $args): void {
-        if (self::$addArchivePage && is_admin()) {
-            // if this is the archive pages post type - do nothing.
-            if (self::$archivePostType === $post_type) {
-                return;
-            }
-
-            // if this post type is not supposed to support an archive - do nothing.
-            if (empty($args->has_archive)) {
-                return;
-            }
-
-            $post_type_archive_id = cpt_get_post_type_archive_post_id($post_type);
-
-            if (false === $post_type_archive_id) {
-                $postarr = [
-                    'post_type' => self::$archivePostType,
-                    'post_title' => $args->labels->name,
-                    'post_status' => 'publish',
-                    'post_name' => $post_type,
-                ];
-
-                wp_insert_post($postarr, true);
-            }
-        }
+		add_filter("manage_{$this->post_type}_posts_columns", [$this, 'setCurrentColumns'], PHP_INT_MAX);
     }
 
     /**
@@ -307,7 +149,6 @@ class CustomPostType {
 
     public function registerPostType(): void {
         if (!post_type_exists($this->post_type)) {
-            self::$addArchivePage = true;
 
             $options = $this->getPostTypeOptions($this->postTypeOptions);
 
@@ -316,18 +157,59 @@ class CustomPostType {
     }
 
     /**
-     * @param array<string,mixed> $options
+     * @param array $options {
+     *
+     *  @var string[]      $labels
+     *  @var string        $description
+     *  @var bool          $public
+     *  @var bool          $publicly_queryable
+     *  @var bool          $hierarchical
+     *  @var bool          $show_ui
+     *  @var bool          $show_in_menu
+     *  @var bool          $show_in_nav_menus
+     *  @var bool          $show_in_rest
+     *  @var string        $rest_base
+     *  @var string        $rest_namespace
+     *  @var string        $rest_controller_class
+     *  @var bool          $show_tagcloud
+     *  @var bool          $show_in_quick_edit
+     *  @var bool          $show_admin_column
+     *  @var bool|callable $meta_box_cb
+     *  @var callable      $meta_box_sanitize_cb
+     *  @var string[]      $capabilities {
+     *      @var string $manage_terms
+     *      @var string $edit_terms
+     *      @var string $delete_terms
+     *      @var string $assign_terms
+     *  }
+     *  @var array|bool    $rewrite {
+     *      @var string $slug
+     *      @var bool   $with_front
+     *      @var bool   $hierarchical
+     *      @var int    $ep_mask
+     *  }
+     *  @var bool|string   $query_var
+     *  @var callable      $update_count_callback
+     *  @var array|string  $default_term {
+     *      @var string $name
+     *      @var string $slug
+     *      @var string $description
+     *  }
+     *  @var bool          $sort
+     *  @var array         $args
+     *  @var bool          $_builtin
+     * }
      */
-    public function registerTaxonomy(string $taxonomy_name, array $options = []): void {
-        $taxonomy_name = sanitize_key($taxonomy_name);
+    public function registerTaxonomy(string $taxonomy, array $options = []): void {
+        $taxonomy = sanitize_key($taxonomy);
 
         $defaults = [
-            'labels' => cpt_get_taxonomy_labels($taxonomy_name),
+            'labels' => cpt_get_taxonomy_labels($taxonomy),
             'hierarchical' => true,
             'show_in_rest' => true,
         ];
-        $this->taxonomies[] = $taxonomy_name;
-        $this->taxonomySettings[$taxonomy_name] = array_replace_recursive($defaults, $options);
+        $this->taxonomies[] = $taxonomy;
+        $this->taxonomySettings[$taxonomy] = array_replace_recursive($defaults, $options);
     }
 
     public function registerTaxonomies(): void {
@@ -355,6 +237,10 @@ class CustomPostType {
             return;
         }
         global $post;
+
+		if (!($post instanceof \WP_Post)){
+			return;
+		}
 
         switch ($column) {
             case taxonomy_exists($column):
@@ -504,30 +390,32 @@ class CustomPostType {
     public function updatedMessages(array $messages = []): array {
         $post = get_post();
 
-        /** @var null|int $revision */
-        $revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
+		if ($post instanceof \WP_Post){
+			/** @var null|int $revision */
+			$revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
 
-        $messages[$this->post_type_name] = [
-            0 => '',
-            1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            2 => 'Custom field updated.',
-            3 => 'Custom field deleted.',
-            4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            5 => !empty($revision) ? sprintf(
-                '%1$s restored to revision from %2$s',
-                esc_attr($this->singularLabel),
-                wp_post_revision_title($revision, false)
-            ) : false,
-            6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
-            8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
-            9 => sprintf(
-                '%s scheduled for: <strong>%s</strong>.',
-                esc_attr($this->singularLabel),
-                $post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
-            ),
-            10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
-        ];
+			$messages[$this->post_type_name] = [
+				0 => '',
+				1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+				2 => 'Custom field updated.',
+				3 => 'Custom field deleted.',
+				4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+				5 => !empty($revision) ? sprintf(
+					'%1$s restored to revision from %2$s',
+					esc_attr($this->singularLabel),
+					wp_post_revision_title($revision, false)
+				) : false,
+				6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+				7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
+				8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
+				9 => sprintf(
+					'%s scheduled for: <strong>%s</strong>.',
+					esc_attr($this->singularLabel),
+					$post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
+				),
+				10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
+			];
+		}
 
         return $messages;
     }
@@ -616,11 +504,12 @@ class CustomPostType {
      *
      * @return array
      */
-    private function getPostTypeOptions(array $options = []) {
+    private function getPostTypeOptions(array $options = []): array {
         $defaults = [
             'labels' => cpt_get_post_type_labels($this->post_type_name),
             'public' => true,
             'show_in_rest' => true,
+            'add_archive_page' => true,
         ];
 
         if (!empty($this->taxonomies)) {

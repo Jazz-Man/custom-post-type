@@ -66,7 +66,7 @@ function cpt_get_taxonomy_labels(string $taxonomy, array $options = []): array {
 }
 
 /**
- * @return bool|mixed
+ * @return bool|int
  */
 function cpt_get_post_type_archive_post_id(string $post_type) {
     global $wpdb;
