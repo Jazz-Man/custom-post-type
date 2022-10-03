@@ -7,7 +7,10 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 class ArchivePostType implements AutoloadInterface {
     private const ARCHIVE_POST_TYPE = 'hdptap_cpt_archive';
 
-    private ?\WP_Post $archivePost;
+    /**
+     * @var null|array|\WP_Post
+     */
+    private $archivePost;
 
     public function load(): void {
         add_action('init', [self::class, 'registerCptArchivePostType']);
@@ -32,7 +35,7 @@ class ArchivePostType implements AutoloadInterface {
             $post_id = self::getPostTypeArchiveId($object->name);
 
             if (!empty($post_id)) {
-                $this->archivePost = get_post((int)$post_id);
+                $this->archivePost = get_post( $post_id );
             }
         }
     }

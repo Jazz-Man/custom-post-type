@@ -6,6 +6,11 @@ parameters:
 			path: src/ArchivePostType.php
 
 		-
+			message: "#^Property JazzMan\\\\Post\\\\ArchivePostType\\:\\:\\$archivePost type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/ArchivePostType.php
+
+		-
 			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
