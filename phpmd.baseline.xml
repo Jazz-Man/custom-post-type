@@ -1,9 +1,4 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="src/ArchivePostType.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/CustomPostType.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="src/CustomPostType.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/CustomPostType.php"/>
-  <violation rule="PHPMD\Rule\UnusedLocalVariable" file="src/CustomPostType.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="src/helper.php"/>
 </phpmd-baseline>
