@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://getpsalm.org/schema/config"
+       xsi:schemaLocation="https://getpsalm.org/schema/config"
+       cacheDirectory="cache/psalm"
+       serializer="igbinary"
+       errorBaseline="psalm-baseline.xml"
+       errorLevel="2"
+       phpVersion="7.4"
+       autoloader="vendor/szepeviktor/phpstan-wordpress/bootstrap.php"
+>
+    <projectFiles>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <directory name="cache"/>
+            <file name=".php-cs-fixer.php"/>
+            <file name="sample.php"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <stubs>
+        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+    </stubs>
+    <globals>
+        <var name="ABSPATH" type="string"/>
+    </globals>
+</psalm>
