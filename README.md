@@ -146,36 +146,6 @@ The method will pass two variables into the function:
 
 These are passed to help you populate the column appropriately.
 
-#### Sorting Columns
-
-If it makes sense that column should be sortable by ascending/descending you can define custom sortable columns like so:
-
-```php
-$books->setSortable(array(
-	'column_name' => array('meta_key', true)
-));
-```
-
-The `true/false` is used to define whether the meta value is a string or integer,
-reason being is that if numbers are ordered as a string, numbers such as:
-
-	1, 3, 5, 11, 14, 21, 33
-
-Would be ordered as:
-
-	1, 11, 14, 21, 3, 33, 5
-
-By adding the option true value the values will be sorted as integers, if false or undefined, the class will sort columns as string.
-
-so for our books example you will use:
-
-```php
-$books->setSortable([
-    'price'  => ['price', true],
-    'rating' => ['rating', true],
-]);
-```
-
 ### Menu Icons
 
 #### Dashicons
