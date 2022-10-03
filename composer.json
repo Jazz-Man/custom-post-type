@@ -1,6 +1,7 @@
 {
     "name": "jazzman/custom-post-type",
     "license": "MIT",
+    "type": "wordpress-muplugin",
     "description": "A single class to help you build more advanced custom post types quickly.",
     "authors": [
         {
