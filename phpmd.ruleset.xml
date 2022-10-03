@@ -21,6 +21,10 @@
     <exclude name="ExitExpression" />
   </rule>
   <rule ref="rulesets/naming.xml"/>
-  <rule ref="rulesets/unusedcode.xml"/>
+  <rule ref="rulesets/unusedcode.xml">
+    <properties>
+      <property name="allow-unused-foreach-variables" value="true"/>
+    </properties>
+  </rule>
   <rule ref="rulesets/cleancode.xml"/>
 </ruleset>

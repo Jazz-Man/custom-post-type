@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.x-dev@">
   <file src="src/CustomPostType.php">
-    <ArgumentTypeCoercion occurrences="2">
-      <code>$postarr</code>
-    </ArgumentTypeCoercion>
-    <InvalidArgument occurrences="1">
-      <code>false</code>
-    </InvalidArgument>
-    <InvalidNullableReturnType occurrences="1">
-      <code>string</code>
-    </InvalidNullableReturnType>
     <InvalidReturnStatement occurrences="1">
       <code>$messages</code>
     </InvalidReturnStatement>
     <InvalidReturnType occurrences="1"/>
     <MixedArgument occurrences="15">
-      <code>$current_post_type</code>
-      <code>$current_post_type</code>
       <code>$post-&gt;ID</code>
       <code>$post-&gt;ID</code>
       <code>$post-&gt;ID</code>
@@ -31,26 +20,15 @@
       <code>$options</code>
       <code>$options</code>
     </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="9">
-      <code>$current_post_type</code>
-      <code>$current_post_type</code>
-      <code>$desc</code>
+    <MixedAssignment occurrences="6">
       <code>$meta</code>
       <code>$meta_key</code>
-      <code>$post_type_archive_id</code>
       <code>$sortable_columns[$column]</code>
-      <code>$supports</code>
     </MixedAssignment>
     <MixedFunctionCall occurrences="1">
       <code>\call_user_func($this-&gt;populateColumns[$column], $column, $post)</code>
     </MixedFunctionCall>
-    <MixedInferredReturnType occurrences="2">
-      <code>string</code>
-      <code>string</code>
-    </MixedInferredReturnType>
-    <MixedPropertyFetch occurrences="9">
-      <code>$current_screen-&gt;base</code>
-      <code>$current_screen-&gt;post_type</code>
+    <MixedPropertyFetch occurrences="7">
       <code>$post-&gt;ID</code>
       <code>$post-&gt;ID</code>
       <code>$post-&gt;post_title</code>
@@ -59,43 +37,23 @@
       <code>$post-&gt;post_title</code>
       <code>$post-&gt;post_type</code>
     </MixedPropertyFetch>
-    <MixedReturnStatement occurrences="2">
-      <code>$desc</code>
-      <code>apply_filters('the_title', $archive_title)</code>
-    </MixedReturnStatement>
     <MixedReturnTypeCoercion occurrences="2">
       <code>array_merge($sortable_columns, $columns)</code>
     </MixedReturnTypeCoercion>
-    <NullableReturnStatement occurrences="1">
-      <code>$original_slug</code>
-    </NullableReturnStatement>
     <PossibleRawObjectIteration occurrences="1">
       <code>$terms</code>
     </PossibleRawObjectIteration>
     <PossiblyFalseArgument occurrences="1">
       <code>wp_post_revision_title($revision, false)</code>
     </PossiblyFalseArgument>
-    <PossiblyInvalidPropertyFetch occurrences="2">
+    <PossiblyInvalidPropertyFetch occurrences="1">
       <code>$post-&gt;post_date</code>
-      <code>$post-&gt;post_name</code>
     </PossiblyInvalidPropertyFetch>
-    <PossiblyNullArgument occurrences="2">
-      <code>$current_post_type</code>
-      <code>$current_post_type</code>
-    </PossiblyNullArgument>
-    <PossiblyNullPropertyFetch occurrences="2">
-      <code>get_queried_object()-&gt;name</code>
-      <code>get_queried_object()-&gt;name</code>
-    </PossiblyNullPropertyFetch>
     <PropertyNotSetInConstructor occurrences="2">
       <code>$filters</code>
       <code>$sortable</code>
     </PropertyNotSetInConstructor>
     <RedundantCondition occurrences="1"/>
-    <UndefinedMagicPropertyFetch occurrences="2">
-      <code>get_queried_object()-&gt;name</code>
-      <code>get_queried_object()-&gt;name</code>
-    </UndefinedMagicPropertyFetch>
     <UnusedVariable occurrences="1">
       <code>$column</code>
     </UnusedVariable>
@@ -109,14 +67,6 @@
       <code>$archive_page_id</code>
       <code>$archive_page_id</code>
     </InvalidScalarArgument>
-    <MixedArgument occurrences="2">
-      <code>$archive_page_id</code>
-      <code>$archive_page_id</code>
-    </MixedArgument>
-    <MixedAssignment occurrences="2">
-      <code>$archive_page_id</code>
-      <code>$archive_page_id</code>
-    </MixedAssignment>
     <MixedMethodCall occurrences="2">
       <code>get_var</code>
       <code>prepare</code>

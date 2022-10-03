@@ -1,14 +1,14 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Cannot access property \\$labels on WP_Taxonomy\\|false\\.$#"
+			message: "#^Cannot access property \\$name on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
 			count: 1
-			path: src/CustomPostType.php
+			path: src/ArchivePostType.php
 
 		-
-			message: "#^Cannot access property \\$name on WP_Post\\|WP_Post_Type\\|WP_Term\\|WP_User\\|null\\.$#"
-			count: 2
-			path: src/CustomPostType.php
+			message: "#^Parameter \\#6 \\$callback of function add_submenu_page expects callable\\(\\)\\: mixed, false given\\.$#"
+			count: 1
+			path: src/ArchivePostType.php
 
 		-
 			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:addAdminColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -16,12 +16,12 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:fixArchivePostTypeSlug\\(\\) should return string but returns string\\|null\\.$#"
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -46,13 +46,23 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Parameter \\#3 \\$args of function register_taxonomy expects array\\{labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, publicly_queryable\\?\\: bool, hierarchical\\?\\: bool, show_ui\\?\\: bool, show_in_menu\\?\\: bool, show_in_nav_menus\\?\\: bool, \\.\\.\\.\\}, mixed given\\.$#"
+			message: "#^PHPDoc tag @var above a method has no effect\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Parameter \\#6 \\$callback of function add_submenu_page expects callable\\(\\)\\: mixed, false given\\.$#"
-			count: 1
+			message: "#^PHPDoc tag @var for variable \\$args has no value type specified in iterable type array\\.$#"
+			count: 2
+			path: src/CustomPostType.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$default_term has no value type specified in iterable type array\\.$#"
+			count: 2
+			path: src/CustomPostType.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$rewrite has no value type specified in iterable type array\\.$#"
+			count: 2
 			path: src/CustomPostType.php
 
 		-
@@ -62,6 +72,11 @@ parameters:
 
 		-
 			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$populateColumns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/CustomPostType.php
+
+		-
+			message: "#^Property JazzMan\\\\Post\\\\CustomPostType\\:\\:\\$taxonomySettings type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -101,6 +116,6 @@ parameters:
 			path: src/helper.php
 
 		-
-			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, mixed given\\.$#"
+			message: "#^Parameter \\#1 \\$post of function get_post expects int\\|WP_Post\\|null, int\\<min, \\-1\\>\\|int\\<1, max\\>\\|true given\\.$#"
 			count: 2
 			path: src/helper.php
