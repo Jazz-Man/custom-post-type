@@ -7,6 +7,8 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 class ArchivePostType implements AutoloadInterface {
     private const ARCHIVE_POST_TYPE = 'hdptap_cpt_archive';
 
+    private ?\WP_Post $archivePost;
+
     public function load(): void {
         add_action('init', [self::class, 'registerCptArchivePostType']);
         add_action('registered_post_type', [self::class, 'createArchivePages'], 10, 2);
@@ -16,8 +18,23 @@ class ArchivePostType implements AutoloadInterface {
 
         add_action('admin_menu', [self::class, 'addAdminMenuArchivePages'], 99);
 
-        add_filter('get_the_archive_title', [self::class, 'archiveTitle'], 10, 1);
-        add_filter('get_the_archive_description', [self::class, 'archiveDescription'], 10, 1);
+        add_action('template_redirect', [$this, 'setArchivePost']);
+
+        add_filter('get_the_archive_title', [$this, 'archiveTitle'], 10, 1);
+        add_filter('get_the_archive_description', [$this, 'archiveDescription'], 10, 1);
+    }
+
+    public function setArchivePost(): void {
+        // get the current post type.
+        $object = self::getPostTypeobject();
+
+        if (!empty($object)) {
+            $post_id = self::getPostTypeArchiveId($object->name);
+
+            if (!empty($post_id)) {
+                $this->archivePost = get_post((int)$post_id);
+            }
+        }
     }
 
     public static function registerCptArchivePostType(): void {
@@ -81,7 +98,7 @@ class ArchivePostType implements AutoloadInterface {
         }
 
         if ($args->add_archive_page) {
-            $post_type_archive_id = cpt_get_post_type_archive_post_id($post_type);
+            $post_type_archive_id = self::getPostTypeArchiveId($post_type);
 
             if (false === $post_type_archive_id) {
                 $postarr = [
@@ -146,44 +163,69 @@ class ArchivePostType implements AutoloadInterface {
         }
     }
 
-    public static function archiveTitle(string $title = ''): string {
-        // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
-            return $title;
-        }
-        // get the current post type.
-        $object = get_queried_object();
-
-        if ($object instanceof \WP_Post_Type) {
-            // get the post type archive title for this post type.
-            $archive_title = cpt_get_post_type_archive_title($object->name);
-
-            if (!empty($archive_title)) {
-                return apply_filters('the_title', $archive_title);
-            }
+    public function archiveTitle(string $title = ''): string {
+        if ($this->archivePost instanceof \WP_Post) {
+            return apply_filters('the_title', $this->archivePost->post_title);
         }
 
         return $title;
     }
 
-    public static function archiveDescription(string $desc = ''): string {
-        // only proceed if this is a post type archive.
-        if (!is_post_type_archive()) {
-            return $desc;
-        }
-        // get the current post type.
-        $current_post_type = get_queried_object()->name;
-
-        // get the post type archive desc for this post type.
-
-        $archive_content = cpt_get_post_type_archive_content($current_post_type);
-
-        // if we have a desc.
-
-        if (!empty($archive_content)) {
-            $desc = apply_filters('the_content', $archive_content);
+    public function archiveDescription(string $desc = ''): string {
+        if ($this->archivePost instanceof \WP_Post && !empty($this->archivePost->post_content)) {
+            return apply_filters('the_content', $this->archivePost->post_content);
         }
 
         return $desc;
+    }
+
+    /**
+     * @return false|\WP_Post_Type
+     */
+    private static function getPostTypeobject() {
+        if (!is_post_type_archive()) {
+            return false;
+        }
+
+        // get the current post type.
+        $object = get_queried_object();
+
+        if (!$object instanceof \WP_Post_Type) {
+            return false;
+        }
+
+        if (empty($object->has_archive) || !isset($object->add_archive_page)) {
+            return false;
+        }
+
+        if ($object->add_archive_page) {
+            return $object;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return false|int
+     */
+    private static function getPostTypeArchiveId(string $post_type) {
+        global $wpdb;
+
+        $post_id = $wpdb->get_var($wpdb->prepare(<<<SQL
+                    SELECT 
+                      ID 
+                    FROM {$wpdb->posts} 
+                    WHERE 
+                      post_status ='publish' 
+                      AND post_type = %s 
+                      AND post_name = %s 
+                    LIMIT 1
+            SQL, 'hdptap_cpt_archive', $post_type));
+
+        if (null !== $post_id) {
+            return (int) $post_id;
+        }
+
+        return false;
     }
 }
