@@ -46,11 +46,16 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Function JazzMan\\\\Post\\\\cpt_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Parameter \\#5 \\$callback of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
+			count: 1
+			path: src/ReusableBlocks.php
+
+		-
+			message: "#^Function app_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/helper.php
 
 		-
-			message: "#^Function JazzMan\\\\Post\\\\cpt_get_taxonomy_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Function app_get_taxonomy_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/helper.php

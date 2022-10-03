@@ -23,14 +23,13 @@
         ]
     },
     "require-dev": {
-        "jazzman/php-cs-fixer-rules": "^0.1.2",
+        "jazzman/php-cs-fixer-rules": "^0.1.3",
         "phpstan/extension-installer": "^1.1",
         "roave/security-advisories": "@dev",
         "roots/wordpress": "^6.0",
         "szepeviktor/phpstan-wordpress": "^1.1"
     },
     "replace": {
-        "friendsofphp/php-cs-fixer": "*",
         "phpstan/phpstan": "*"
     },
     "extra": {
