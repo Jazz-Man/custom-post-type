@@ -191,7 +191,7 @@ class CustomPostType {
         $taxonomy = sanitize_key($taxonomy);
 
         $defaults = [
-            'labels' => cpt_get_taxonomy_labels($taxonomy),
+            'labels' => app_get_taxonomy_labels($taxonomy),
             'hierarchical' => true,
             'show_in_rest' => true,
             'show_admin_column' => true,
@@ -348,7 +348,7 @@ class CustomPostType {
 
         $this->post_type = sanitize_key($this->post_type_name);
 
-        $pluralizer = cpt_string_pluralizer($this->post_type_name);
+        $pluralizer = app_string_pluralizer($this->post_type_name);
 
         $this->singularLabel = $pluralizer['singular'];
         $this->pluralLabel = $pluralizer['plural'];
@@ -359,7 +359,7 @@ class CustomPostType {
      */
     private function getPostTypeOptions(array $options = []): array {
         $defaults = [
-            'labels' => cpt_get_post_type_labels($this->post_type_name),
+            'labels' => app_get_post_type_labels($this->post_type_name),
             'public' => true,
             'show_in_rest' => true,
             'add_archive_page' => true,

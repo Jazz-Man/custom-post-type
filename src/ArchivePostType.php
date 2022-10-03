@@ -46,7 +46,7 @@ class ArchivePostType implements AutoloadInterface {
              * Lets register the conditions post type
              * post type name is docp_condition.
              */
-            $labels = cpt_get_post_type_labels('Archive Pages');
+            $labels = app_get_post_type_labels('Archive Pages');
 
             /** @var string[] $supports */
             $supports = (array) apply_filters(
