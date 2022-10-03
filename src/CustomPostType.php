@@ -16,11 +16,6 @@ class CustomPostType {
     private array $exisitingTaxonomies = [];
 
     /**
-     * @var array<string,array<string,mixed>>
-     */
-    private array $sortable;
-
-    /**
      * @var array<string,mixed>
      */
     private array $postTypeOptions;
@@ -31,46 +26,7 @@ class CustomPostType {
     private ?array $taxonomies;
 
     /**
-     * @var array[]       {
-     * @var string[]      $labels
-     * @var string        $description
-     * @var bool          $public
-     * @var bool          $publicly_queryable
-     * @var bool          $hierarchical
-     * @var bool          $show_ui
-     * @var bool          $show_in_menu
-     * @var bool          $show_in_nav_menus
-     * @var bool          $show_in_rest
-     * @var string        $rest_base
-     * @var string        $rest_namespace
-     * @var string        $rest_controller_class
-     * @var bool          $show_tagcloud
-     * @var bool          $show_in_quick_edit
-     * @var bool          $show_admin_column
-     * @var bool|callable $meta_box_cb
-     * @var callable      $meta_box_sanitize_cb
-     * @var string[]      $capabilities {
-     * @var string        $manage_terms
-     * @var string        $edit_terms
-     * @var string        $delete_terms
-     * @var string        $assign_terms
-     *                    }
-     * @var array|bool    $rewrite {
-     * @var string        $slug
-     * @var bool          $with_front
-     * @var bool          $hierarchical
-     * @var int           $ep_mask
-     *                    }
-     * @var bool|string   $query_var
-     * @var callable      $update_count_callback
-     * @var array|string  $default_term {
-     * @var string        $name
-     * @var string        $slug
-     * @var string        $description
-     *                    }
-     * @var bool          $sort
-     * @var bool          $_builtin
-     *                    }
+     * @var array<string,mixed>
      */
     private array $taxonomySettings = [];
 
@@ -242,6 +198,7 @@ class CustomPostType {
             'show_in_quick_edit' => true,
         ];
         $this->taxonomies[] = $taxonomy;
+
         $this->taxonomySettings[$taxonomy] = array_replace_recursive($defaults, $options);
     }
 
@@ -249,7 +206,7 @@ class CustomPostType {
         if (!empty($this->taxonomySettings)) {
             foreach ($this->taxonomySettings as $taxonomy => $options) {
                 if (taxonomy_exists($taxonomy)) {
-                    $this->exisitingTaxonomies[] = $taxonomy;
+                    $this->exisitingTaxonomies[] = (string) $taxonomy;
                 } else {
                     register_taxonomy($taxonomy, $this->post_type, $options);
                 }
@@ -306,33 +263,6 @@ class CustomPostType {
         }
     }
 
-    /**
-     * @param array<string,array<string,mixed>> $columns
-     */
-    public function setSortable(array $columns = []): void {
-        $this->sortable = $columns;
-
-        add_filter("manage_edit-{$this->post_type}_sortable_columns", function (array $columns = []): array {
-            $sortable_columns = [];
-
-            foreach ($this->sortable as $column => $values) {
-                $sortable_columns[$column] = $values[0];
-            }
-
-            return array_merge($sortable_columns, $columns);
-        });
-
-        add_action('load-edit.php', function (): void {
-            /**
-             * Load edit
-             * Sort columns only on the edit.php page when requested.
-             *
-             * @see http://codex.wordpress.org/Plugin_API/Filter_Reference/request
-             */
-            add_filter('request', fn (array $vars) => $this->sortColumns($vars));
-        });
-    }
-
     public function setMenuIcon(string $icon = 'dashicons-admin-page'): void {
         $this->postTypeOptions['menu_icon'] = false !== stripos($icon, 'dashicons') ? $icon : 'dashicons-admin-page';
     }
@@ -340,37 +270,35 @@ class CustomPostType {
     /**
      * @param array<string,array<string,mixed>> $messages
      *
-     * @return array<string,array<string,mixed>>
+     * @return array<array-key,array<string,mixed>>
      */
     public function updatedMessages(array $messages = []): array {
         $post = get_post();
 
-        if ($post instanceof \WP_Post) {
-            /** @var null|int $revision */
-            $revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
+        /** @var null|int $revision */
+        $revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
 
-            $messages[$this->post_type_name] = [
-                0 => '',
-                1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-                2 => 'Custom field updated.',
-                3 => 'Custom field deleted.',
-                4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-                5 => !empty($revision) ? sprintf(
-                    '%1$s restored to revision from %2$s',
-                    esc_attr($this->singularLabel),
-                    wp_post_revision_title($revision, false)
-                ) : false,
-                6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-                7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
-                8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
-                9 => sprintf(
-                    '%s scheduled for: <strong>%s</strong>.',
-                    esc_attr($this->singularLabel),
-                    $post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
-                ),
-                10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
-            ];
-        }
+        $messages[$this->post_type_name] = [
+            0 => '',
+            1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+            2 => 'Custom field updated.',
+            3 => 'Custom field deleted.',
+            4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+            5 => !empty($revision) ? sprintf(
+                '%1$s restored to revision from %2$s',
+                esc_attr($this->singularLabel),
+                wp_post_revision_title($revision, false)
+            ) : false,
+            6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
+            7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
+            8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
+            9 => sprintf(
+                '%s scheduled for: <strong>%s</strong>.',
+                esc_attr($this->singularLabel),
+                $post instanceof \WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
+            ),
+            10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
+        ];
 
         return $messages;
     }
@@ -411,33 +339,6 @@ class CustomPostType {
         ];
 
         return $messages;
-    }
-
-    /**
-     * @param array<string,string> $vars
-     *
-     * @return array<string,string>
-     */
-    private function sortColumns(array $vars): array {
-        $_vars = [];
-
-        foreach ($this->sortable as $column => $values) {
-            $meta_key = $values[0];
-            $orderby = isset($values[1]) && true === $values[1] ? 'meta_value_num' : 'meta_value';
-
-            if (isset($vars['post_type']) && $this->post_type === $vars['post_type'] && isset($vars['orderby']) && $meta_key === $vars['orderby']) {
-                $_vars[] = [
-                    'meta_key' => $meta_key,
-                    'orderby' => $orderby,
-                ];
-            }
-        }
-
-        if (!empty($_vars)) {
-            $vars = array_merge([], ...$_vars);
-        }
-
-        return $vars;
     }
 
     private function initPostTypeConfig(string $post_type_name): void {
@@ -496,9 +397,10 @@ class CustomPostType {
     }
 
     private function printMetaColumn(int $post_id, string $meta_key, \WP_Post $post): void {
+        /** @var null|string $meta */
         $meta = get_post_meta($post_id, $meta_key, true);
 
-        if (!empty($meta) && \is_string($meta)) {
+        if (!empty($meta)) {
             printf(
                 '<span title="%s Meta: %s">%s</span>',
                 esc_attr($post->post_title),
