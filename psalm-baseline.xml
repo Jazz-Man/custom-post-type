@@ -4,7 +4,7 @@
     <ArgumentTypeCoercion occurrences="1">
       <code>$postarr</code>
     </ArgumentTypeCoercion>
-    <InvalidArgument occurrences="1">
+    <InvalidArgument occurrences="2">
       <code>false</code>
     </InvalidArgument>
     <PossiblyInvalidPropertyFetch occurrences="1">

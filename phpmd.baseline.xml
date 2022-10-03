@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
+  <violation rule="PHPMD\Rule\Controversial\CamelCasePropertyName" file="src/CustomPostType.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/CustomPostType.php"/>
+  <violation rule="PHPMD\Rule\Controversial\CamelCaseParameterName" file="src/helper.php"/>
 </phpmd-baseline>
