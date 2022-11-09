@@ -8,7 +8,7 @@ class ArchivePostType implements AutoloadInterface {
     private const ARCHIVE_POST_TYPE = 'hdptap_cpt_archive';
 
     /**
-     * @var array<string,\WP_Post|null>
+     * @var array<string,false|\WP_Post>
      */
     private static $store = [];
 
@@ -190,7 +190,10 @@ class ArchivePostType implements AutoloadInterface {
         return $description;
     }
 
-    private static function getPostTypeArchive(string $postType): ?\WP_Post {
+    /**
+     * @return null|\WP_Post
+     */
+    private static function getPostTypeArchive(string $postType) {
         global $wpdb;
 
         if (empty(self::$store[$postType])) {
@@ -206,7 +209,7 @@ class ArchivePostType implements AutoloadInterface {
                 SQL, 'hdptap_cpt_archive', $postType));
 
             if (null !== $postId) {
-                self::$store[$postType] = get_post((int)$postId);
+                self::$store[$postType] = \WP_Post::get_instance((int) $postId);
             }
         }
 
