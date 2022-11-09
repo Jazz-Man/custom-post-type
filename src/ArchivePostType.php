@@ -8,9 +8,9 @@ class ArchivePostType implements AutoloadInterface {
     private const ARCHIVE_POST_TYPE = 'hdptap_cpt_archive';
 
     /**
-     * @var null|array|\WP_Post
+     * @var array<string,\WP_Post|null>
      */
-    private $archivePost;
+    private static $store = [];
 
     public function load(): void {
         add_action('init', [self::class, 'registerCptArchivePostType']);
@@ -21,23 +21,8 @@ class ArchivePostType implements AutoloadInterface {
 
         add_action('admin_menu', [self::class, 'addAdminMenuArchivePages'], 99);
 
-        add_action('template_redirect', [$this, 'setArchivePost']);
-
-        add_filter('get_the_archive_title', [$this, 'archiveTitle'], 10, 1);
-        add_filter('get_the_archive_description', [$this, 'archiveDescription'], 10, 1);
-    }
-
-    public function setArchivePost(): void {
-        // get the current post type.
-        $object = self::getPostTypeobject();
-
-        if (!empty($object)) {
-            $post_id = self::getPostTypeArchiveId($object->name);
-
-            if (!empty($post_id)) {
-                $this->archivePost = get_post($post_id);
-            }
-        }
+        add_filter('post_type_archive_title', [self::class, 'archiveTitle'], 10, 2);
+        add_filter('get_the_post_type_description', [self::class, 'archiveDescription'], 10, 2);
     }
 
     public static function registerCptArchivePostType(): void {
@@ -102,9 +87,9 @@ class ArchivePostType implements AutoloadInterface {
         }
 
         if ($args->add_archive_page) {
-            $post_type_archive_id = self::getPostTypeArchiveId($postType);
+            $archivePost = self::getPostTypeArchive($postType);
 
-            if (false === $post_type_archive_id) {
+            if (!$archivePost instanceof \WP_Post) {
                 $postarr = [
                     'post_type' => self::ARCHIVE_POST_TYPE,
                     'post_title' => $args->labels->name,
@@ -167,69 +152,64 @@ class ArchivePostType implements AutoloadInterface {
         }
     }
 
-    public function archiveTitle(string $title = ''): string {
-        if ($this->archivePost instanceof \WP_Post) {
-            return apply_filters('the_title', $this->archivePost->post_title);
+    public static function archiveTitle(string $title, string $postType): string {
+        $object = get_post_type_object($postType);
+
+        if (empty($object->has_archive) || !isset($object->add_archive_page)) {
+            return $title;
+        }
+
+        if ($object->add_archive_page) {
+            $archivePost = self::getPostTypeArchive($postType);
+
+            if ($archivePost instanceof \WP_Post) {
+                return apply_filters('the_title', $archivePost->post_title);
+            }
+
+            return $title;
         }
 
         return $title;
     }
 
-    public function archiveDescription(string $desc = ''): string {
-        if ($this->archivePost instanceof \WP_Post && !empty($this->archivePost->post_content)) {
-            return apply_filters('the_content', $this->archivePost->post_content);
-        }
-
-        return $desc;
-    }
-
-    /**
-     * @return false|\WP_Post_Type
-     */
-    private static function getPostTypeobject() {
-        if (!is_post_type_archive()) {
-            return false;
-        }
-
-        // get the current post type.
-        $object = get_queried_object();
-
-        if (!$object instanceof \WP_Post_Type) {
-            return false;
-        }
-
+    public static function archiveDescription(string $description, \WP_Post_Type $object): string {
         if (empty($object->has_archive) || !isset($object->add_archive_page)) {
-            return false;
+            return $description;
         }
 
         if ($object->add_archive_page) {
-            return $object;
+            $archivePost = self::getPostTypeArchive($object->name);
+
+            if ($archivePost instanceof \WP_Post) {
+                return apply_filters('the_content', $archivePost->post_content);
+            }
+
+            return $description;
         }
 
-        return false;
+        return $description;
     }
 
-    /**
-     * @return false|int
-     */
-    private static function getPostTypeArchiveId(string $postType) {
+    private static function getPostTypeArchive(string $postType): ?\WP_Post {
         global $wpdb;
 
-        $post_id = $wpdb->get_var($wpdb->prepare(<<<SQL
-                    SELECT 
-                      ID 
-                    FROM {$wpdb->posts} 
-                    WHERE 
-                      post_status ='publish' 
-                      AND post_type = %s 
-                      AND post_name = %s 
-                    LIMIT 1
-            SQL, 'hdptap_cpt_archive', $postType));
+        if (empty(self::$store[$postType])) {
+            $postId = $wpdb->get_var($wpdb->prepare(<<<SQL
+                        SELECT 
+                          ID 
+                        FROM {$wpdb->posts} 
+                        WHERE 
+                          post_status ='publish' 
+                          AND post_type = %s 
+                          AND post_name = %s 
+                        LIMIT 1
+                SQL, 'hdptap_cpt_archive', $postType));
 
-        if (null !== $post_id) {
-            return (int) $post_id;
+            if (null !== $postId) {
+                self::$store[$postType] = get_post((int)$postId);
+            }
         }
 
-        return false;
+        return !empty(self::$store[$postType]) ? self::$store[$postType] : null;
     }
 }
