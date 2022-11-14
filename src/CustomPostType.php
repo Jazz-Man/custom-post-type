@@ -2,6 +2,12 @@
 
 namespace JazzMan\Post;
 
+use WP_Error;
+use WP_Post;
+use WP_Post_Type;
+use WP_Taxonomy;
+use WP_Term;
+
 /**
  * Class CustomPostType.
  */
@@ -9,11 +15,6 @@ class CustomPostType {
     public string $post_type;
 
     public string $post_type_name;
-
-    /**
-     * @var string[]
-     */
-    private array $exisitingTaxonomies = [];
 
     /**
      * @var array<string,mixed>
@@ -24,11 +25,6 @@ class CustomPostType {
      * @var null|string[]
      */
     private ?array $taxonomies;
-
-    /**
-     * @var array<string,mixed>
-     */
-    private array $taxonomySettings = [];
 
     private string $singularLabel;
 
@@ -44,9 +40,7 @@ class CustomPostType {
 
         $this->postTypeOptions = $options;
 
-        add_action('init', [$this, 'registerTaxonomies']);
-        add_action('init', [$this, 'registerPostType']);
-        add_action('init', [$this, 'registerExisitingTaxonomies']);
+        $this->registerPostType();
 
         add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
 
@@ -100,7 +94,7 @@ class CustomPostType {
             function (string $col = '', int $postId = 0) use ($callback): void {
                 global $post;
 
-                if (!$post instanceof \WP_Post) {
+                if (!$post instanceof WP_Post) {
                     return;
                 }
 
@@ -135,57 +129,49 @@ class CustomPostType {
         );
     }
 
-    public function registerPostType(): void {
-        if (!post_type_exists($this->post_type)) {
-            $options = $this->getPostTypeOptions($this->postTypeOptions);
-
-            register_post_type($this->post_type_name, $options);
-        }
-    }
-
     /**
      * @param array $options {
      *
-     *  @var string[]      $labels
-     *  @var string        $description
-     *  @var bool          $public
-     *  @var bool          $publicly_queryable
-     *  @var bool          $hierarchical
-     *  @var bool          $show_ui
-     *  @var bool          $show_in_menu
-     *  @var bool          $show_in_nav_menus
-     *  @var bool          $show_in_rest
-     *  @var string        $rest_base
-     *  @var string        $rest_namespace
-     *  @var string        $rest_controller_class
-     *  @var bool          $show_tagcloud
-     *  @var bool          $show_in_quick_edit
-     *  @var bool          $show_admin_column
-     *  @var bool|callable $meta_box_cb
-     *  @var callable      $meta_box_sanitize_cb
-     *  @var string[]      $capabilities {
-     *      @var string $manage_terms
-     *      @var string $edit_terms
-     *      @var string $delete_terms
-     *      @var string $assign_terms
-     *  }
-     *  @var array|bool    $rewrite {
-     *      @var string $slug
-     *      @var bool   $with_front
-     *      @var bool   $hierarchical
-     *      @var int    $ep_mask
-     *  }
-     *  @var bool|string   $query_var
-     *  @var callable      $update_count_callback
-     *  @var array|string  $default_term {
-     *      @var string $name
-     *      @var string $slug
-     *      @var string $description
-     *  }
-     *  @var bool          $sort
-     *  @var array         $args
-     *  @var bool          $_builtin
-     * }
+     * @var string[]      $labels
+     * @var string        $description
+     * @var bool          $public
+     * @var bool          $publicly_queryable
+     * @var bool          $hierarchical
+     * @var bool          $show_ui
+     * @var bool          $show_in_menu
+     * @var bool          $show_in_nav_menus
+     * @var bool          $show_in_rest
+     * @var string        $rest_base
+     * @var string        $rest_namespace
+     * @var string        $rest_controller_class
+     * @var bool          $show_tagcloud
+     * @var bool          $show_in_quick_edit
+     * @var bool          $show_admin_column
+     * @var bool|callable $meta_box_cb
+     * @var callable      $meta_box_sanitize_cb
+     * @var string[]      $capabilities {
+     * @var string        $manage_terms
+     * @var string        $edit_terms
+     * @var string        $delete_terms
+     * @var string        $assign_terms
+     *                    }
+     * @var array|bool    $rewrite {
+     * @var string        $slug
+     * @var bool          $with_front
+     * @var bool          $hierarchical
+     * @var int           $ep_mask
+     *                    }
+     * @var bool|string   $query_var
+     * @var callable      $update_count_callback
+     * @var array|string  $default_term {
+     * @var string        $name
+     * @var string        $slug
+     * @var string        $description
+     *                    }
+     * @var bool          $sort
+     * @var array         $args
+     * @var bool          $_builtin
+     *                    }
      */
     public function registerTaxonomy(string $taxonomy, array $options = []): void {
         $taxonomy = sanitize_key($taxonomy);
@@ -199,27 +185,24 @@ class CustomPostType {
         ];
         $this->taxonomies[] = $taxonomy;
 
-        $this->taxonomySettings[$taxonomy] = array_replace_recursive($defaults, $options);
-    }
+        $options = wp_parse_args($options, $defaults);
 
-    public function registerTaxonomies(): void {
-        if (!empty($this->taxonomySettings)) {
-            foreach ($this->taxonomySettings as $taxonomy => $options) {
-                if (taxonomy_exists($taxonomy)) {
-                    $this->exisitingTaxonomies[] = $taxonomy;
-                } else {
-                    register_taxonomy($taxonomy, $this->post_type, $options);
-                }
-            }
-        }
-    }
+        $taxonomyObject = get_taxonomy($taxonomy);
 
-    public function registerExisitingTaxonomies(): void {
-        if (!empty($this->exisitingTaxonomies)) {
-            foreach ($this->exisitingTaxonomies as $taxonomy) {
-                register_taxonomy_for_object_type($taxonomy, $this->post_type);
-            }
+        if ($taxonomyObject instanceof WP_Taxonomy) {
+            add_filter(
+                "register_{$taxonomy}_taxonomy_args",
+                fn (array $args) => wp_parse_args($options, $args)
+            );
+        } else {
+            add_action('init', function () use ($taxonomy, $options): void {
+                register_taxonomy($taxonomy, $this->post_type, $options);
+            });
         }
+
+        add_action('init', function () use ($taxonomy): void {
+            register_taxonomy_for_object_type($taxonomy, $this->post_type);
+        });
     }
 
     public function addTaxonomyFilters(): void {
@@ -232,7 +215,7 @@ class CustomPostType {
                 /** @var null|string $currentTerm */
                 $currentTerm = filter_input(INPUT_GET, $filter, FILTER_SANITIZE_STRING);
 
-                /** @var \WP_Error|\WP_Term[] $terms */
+                /** @var WP_Error|WP_Term[] $terms */
                 $terms = get_terms(
                     [
                         'taxonomy' => $filter,
@@ -241,7 +224,7 @@ class CustomPostType {
                     ]
                 );
 
-                if (!is_wp_error($terms) && !empty($terms)) {
+                if (!($terms instanceof WP_Error) && !empty($terms)) {
                     $options = sprintf('<option value="0">Show all %s</option>', $tax ? esc_attr($tax->label) : '');
 
                     foreach ($terms as $term) {
@@ -280,24 +263,35 @@ class CustomPostType {
         /** @var null|int $revision */
         $revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
 
+        /** @var false|string $revisionTitle */
+        $revisionTitle = false;
+
+        if (!empty($revision)) {
+            $title = wp_post_revision_title($revision, false);
+
+            if (!empty($title)) {
+                $revisionTitle = sprintf(
+                    '%1$s restored to revision from %2$s',
+                    esc_attr($this->singularLabel),
+                    $title
+                );
+            }
+        }
+
         $messages[$this->post_type_name] = [
             0 => '',
             1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
             2 => 'Custom field updated.',
             3 => 'Custom field deleted.',
             4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            5 => !empty($revision) ? sprintf(
-                '%1$s restored to revision from %2$s',
-                esc_attr($this->singularLabel),
-                wp_post_revision_title($revision, false)
-            ) : false,
+            5 => $revisionTitle,
             6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
             7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
             8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
             9 => sprintf(
                 '%s scheduled for: <strong>%s</strong>.',
                 esc_attr($this->singularLabel),
-                $post instanceof \WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
+                $post instanceof WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
             ),
             10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
         ];
@@ -343,6 +337,23 @@ class CustomPostType {
         return $messages;
     }
 
+    private function registerPostType(): void {
+        $typeObject = get_post_type_object($this->post_type_name);
+
+        $options = $this->getPostTypeOptions($this->postTypeOptions);
+
+        if ($typeObject instanceof WP_Post_Type) {
+            add_filter(
+                "register_{$this->post_type_name}_post_type_args",
+                fn (array $args) => wp_parse_args($options, $args)
+            );
+        } else {
+            add_action('init', function () use ($options): void {
+                register_post_type($this->post_type_name, $options);
+            });
+        }
+    }
+
     private function initPostTypeConfig(string $postType): void {
         $this->post_type_name = $postType;
 
@@ -372,7 +383,7 @@ class CustomPostType {
         return array_replace_recursive($defaults, $options);
     }
 
-    private function printIconColumn(int $postId, \WP_Post $post): void {
+    private function printIconColumn(int $postId, WP_Post $post): void {
         $link = sprintf('post.php?post=%d&action=edit', $post->ID);
 
         if (has_post_thumbnail($postId)) {
@@ -398,7 +409,7 @@ class CustomPostType {
         }
     }
 
-    private function printMetaColumn(int $postId, string $metaKey, \WP_Post $post): void {
+    private function printMetaColumn(int $postId, string $metaKey, WP_Post $post): void {
         /** @var null|string $meta */
         $meta = get_post_meta($postId, $metaKey, true);
 
