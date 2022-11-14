@@ -12,12 +12,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/CustomPostType.php">
-    <PossibleRawObjectIteration occurrences="1">
-      <code>$terms</code>
-    </PossibleRawObjectIteration>
-    <PossiblyFalseArgument occurrences="1">
-      <code>wp_post_revision_title($revision, false)</code>
-    </PossiblyFalseArgument>
     <PossiblyInvalidDocblockTag occurrences="36">
       <code>@var array         $args</code>
       <code>@var array|bool    $rewrite {</code>
@@ -34,25 +28,14 @@
       <code>@var bool          $show_tagcloud</code>
       <code>@var bool          $show_ui</code>
       <code>@var bool          $sort</code>
-      <code>@var bool   $hierarchical</code>
-      <code>@var bool   $with_front</code>
       <code>@var bool|callable $meta_box_cb</code>
       <code>@var bool|string   $query_var</code>
       <code>@var callable      $meta_box_sanitize_cb</code>
       <code>@var callable      $update_count_callback</code>
-      <code>@var int    $ep_mask</code>
       <code>@var string        $description</code>
       <code>@var string        $rest_base</code>
       <code>@var string        $rest_controller_class</code>
       <code>@var string        $rest_namespace</code>
-      <code>@var string $assign_terms</code>
-      <code>@var string $delete_terms</code>
-      <code>@var string $description</code>
-      <code>@var string $edit_terms</code>
-      <code>@var string $manage_terms</code>
-      <code>@var string $name</code>
-      <code>@var string $slug</code>
-      <code>@var string $slug</code>
       <code>@var string[]      $capabilities {</code>
       <code>@var string[]      $labels</code>
     </PossiblyInvalidDocblockTag>

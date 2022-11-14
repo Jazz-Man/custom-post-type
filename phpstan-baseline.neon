@@ -36,11 +36,6 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Parameter \\#3 \\$args of function register_taxonomy expects array\\{labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, publicly_queryable\\?\\: bool, hierarchical\\?\\: bool, show_ui\\?\\: bool, show_in_menu\\?\\: bool, show_in_nav_menus\\?\\: bool, \\.\\.\\.\\}, mixed given\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
 			message: "#^Parameter \\#5 \\$callback of function add_menu_page expects callable\\(\\)\\: mixed, '' given\\.$#"
 			count: 1
 			path: src/ReusableBlocks.php
