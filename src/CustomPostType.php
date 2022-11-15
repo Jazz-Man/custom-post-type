@@ -2,11 +2,9 @@
 
 namespace JazzMan\Post;
 
-use WP_Error;
 use WP_Post;
 use WP_Post_Type;
 use WP_Taxonomy;
-use WP_Term;
 
 /**
  * Class CustomPostType.
@@ -20,11 +18,6 @@ class CustomPostType {
      * @var array<string,mixed>
      */
     private array $postTypeOptions;
-
-    /**
-     * @var null|string[]
-     */
-    private ?array $taxonomies;
 
     private string $singularLabel;
 
@@ -41,8 +34,6 @@ class CustomPostType {
         $this->postTypeOptions = $options;
 
         $this->registerPostType();
-
-        add_action('restrict_manage_posts', [$this, 'addTaxonomyFilters']);
 
         add_filter('post_updated_messages', [$this, 'updatedMessages']);
         add_filter('bulk_post_updated_messages', [$this, 'bulkUpdatedMessages'], 10, 2);
@@ -183,7 +174,6 @@ class CustomPostType {
             'show_admin_column' => true,
             'show_in_quick_edit' => true,
         ];
-        $this->taxonomies[] = $taxonomy;
 
         $options = wp_parse_args($options, $defaults);
 
@@ -203,47 +193,6 @@ class CustomPostType {
         add_action('init', function () use ($taxonomy): void {
             register_taxonomy_for_object_type($taxonomy, $this->post_type);
         });
-    }
-
-    public function addTaxonomyFilters(): void {
-        global $typenow;
-
-        if ($typenow === $this->post_type && !empty($this->taxonomies)) {
-            foreach ($this->taxonomies as $filter) {
-                $tax = get_taxonomy($filter);
-
-                /** @var null|string $currentTerm */
-                $currentTerm = filter_input(INPUT_GET, $filter, FILTER_SANITIZE_STRING);
-
-                /** @var WP_Error|WP_Term[] $terms */
-                $terms = get_terms(
-                    [
-                        'taxonomy' => $filter,
-                        'orderby' => 'name',
-                        'hide_empty' => false,
-                    ]
-                );
-
-                if (!($terms instanceof WP_Error) && !empty($terms)) {
-                    $options = sprintf('<option value="0">Show all %s</option>', $tax ? esc_attr($tax->label) : '');
-
-                    foreach ($terms as $term) {
-                        $options .= sprintf(
-                            '<option value="%s" %s>%s (%s)</option>',
-                            esc_attr($term->slug),
-                            !empty($currentTerm) ? selected($currentTerm, $term->slug, false) : '',
-                            esc_attr($term->name),
-                            esc_attr((string) $term->count)
-                        );
-                    }
-                    printf(
-                        '<select name="%s" class="postform">%s</select>',
-                        esc_attr($filter),
-                        $options
-                    );
-                }
-            }
-        }
     }
 
     public function setMenuIcon(string $icon = 'dashicons-admin-page'): void {
@@ -303,7 +252,9 @@ class CustomPostType {
      * @param array<string,array<string,string>> $messages
      * @param array<string,int>                  $counts
      *
-     * @return array<string,array<string,string>>
+     * @return string[][]
+     *
+     * @psalm-return array<string, array<string, string>>
      */
     public function bulkUpdatedMessages(array $messages = [], array $counts = []): array {
         $messages[$this->post_type_name] = [
@@ -352,6 +303,68 @@ class CustomPostType {
                 register_post_type($this->post_type_name, $options);
             });
         }
+
+        $this->addTaxonomyFilters();
+    }
+
+    private function addTaxonomyFilters(): void {
+        /**
+         * @param string $postType the post type slug
+         * @param string $which    the location of the extra table nav markup:
+         *                         'top' or 'bottom' for WP_Posts_List_Table,
+         *                         'bar' for WP_Media_List_Table
+         */
+        add_action('restrict_manage_posts', function (string $postType, string $which): void {
+            if ('top' !== $which) {
+                return;
+            }
+
+            if ($postType !== $this->post_type) {
+                return;
+            }
+
+            /** @var WP_Taxonomy[] $taxonomies */
+            $taxonomies = get_object_taxonomies($this->post_type, 'objects');
+
+            if (empty($taxonomies)) {
+                return;
+            }
+
+            foreach ($taxonomies as $taxonomy => $object) {
+                if (!$object->show_admin_column || empty($object->query_var)) {
+                    continue;
+                }
+
+                /** @var null|string $currentTerm */
+                $currentTerm = filter_input(INPUT_GET, $object->query_var, FILTER_SANITIZE_STRING);
+
+                $options = [
+                    'hide_empty' => 0,
+                    'hierarchical' => 1,
+                    'show_count' => 0,
+                    'orderby' => 'name',
+                    'name' => $object->query_var,
+                    'value_field' => 'slug',
+                    'taxonomy' => $taxonomy,
+                ];
+
+                if (!empty($object->labels->all_items)) {
+                    $options['show_option_all'] = (string) $object->labels->all_items;
+                }
+
+                if (!empty($currentTerm)) {
+                    $options['selected'] = $currentTerm;
+                }
+
+                printf(
+                    '<label class="screen-reader-text" for="%s">%s</label>',
+                    esc_attr($taxonomy),
+                    esc_html((string) $object->labels->filter_by_item)
+                );
+
+                wp_dropdown_categories($options);
+            }
+        }, 10, 2);
     }
 
     private function initPostTypeConfig(string $postType): void {
@@ -375,10 +388,6 @@ class CustomPostType {
             'show_in_rest' => true,
             'add_archive_page' => true,
         ];
-
-        if (!empty($this->taxonomies)) {
-            $defaults['taxonomies'] = $this->taxonomies;
-        }
 
         return array_replace_recursive($defaults, $options);
     }

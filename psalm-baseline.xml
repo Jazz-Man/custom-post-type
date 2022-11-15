@@ -39,8 +39,5 @@
       <code>@var string[]      $capabilities {</code>
       <code>@var string[]      $labels</code>
     </PossiblyInvalidDocblockTag>
-    <PropertyNotSetInConstructor occurrences="1">
-      <code>$taxonomies</code>
-    </PropertyNotSetInConstructor>
   </file>
 </files>
