@@ -2,10 +2,6 @@
 
 namespace JazzMan\Post;
 
-use WP_Post;
-use WP_Post_Type;
-use WP_Taxonomy;
-
 /**
  * Class CustomPostType.
  */
@@ -85,7 +81,7 @@ class CustomPostType {
             function (string $col = '', int $postId = 0) use ($callback): void {
                 global $post;
 
-                if (!$post instanceof WP_Post) {
+                if (!$post instanceof \WP_Post) {
                     return;
                 }
 
@@ -179,7 +175,7 @@ class CustomPostType {
 
         $taxonomyObject = get_taxonomy($taxonomy);
 
-        if ($taxonomyObject instanceof WP_Taxonomy) {
+        if ($taxonomyObject instanceof \WP_Taxonomy) {
             add_filter(
                 "register_{$taxonomy}_taxonomy_args",
                 fn (array $args) => wp_parse_args($options, $args)
@@ -240,7 +236,7 @@ class CustomPostType {
             9 => sprintf(
                 '%s scheduled for: <strong>%s</strong>.',
                 esc_attr($this->singularLabel),
-                $post instanceof WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
+                $post instanceof \WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
             ),
             10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
         ];
@@ -293,7 +289,7 @@ class CustomPostType {
 
         $options = $this->getPostTypeOptions($this->postTypeOptions);
 
-        if ($typeObject instanceof WP_Post_Type) {
+        if ($typeObject instanceof \WP_Post_Type) {
             add_filter(
                 "register_{$this->post_type_name}_post_type_args",
                 fn (array $args) => wp_parse_args($options, $args)
@@ -323,7 +319,7 @@ class CustomPostType {
                 return;
             }
 
-            /** @var WP_Taxonomy[] $taxonomies */
+            /** @var \WP_Taxonomy[] $taxonomies */
             $taxonomies = get_object_taxonomies($this->post_type, 'objects');
 
             if (empty($taxonomies)) {
@@ -392,7 +388,7 @@ class CustomPostType {
         return array_replace_recursive($defaults, $options);
     }
 
-    private function printIconColumn(int $postId, WP_Post $post): void {
+    private function printIconColumn(int $postId, \WP_Post $post): void {
         $link = sprintf('post.php?post=%d&action=edit', $post->ID);
 
         if (has_post_thumbnail($postId)) {
@@ -418,7 +414,7 @@ class CustomPostType {
         }
     }
 
-    private function printMetaColumn(int $postId, string $metaKey, WP_Post $post): void {
+    private function printMetaColumn(int $postId, string $metaKey, \WP_Post $post): void {
         /** @var null|string $meta */
         $meta = get_post_meta($postId, $metaKey, true);
 

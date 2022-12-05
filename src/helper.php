@@ -94,9 +94,11 @@ if (!function_exists('app_get_human_friendly')) {
 }
 
 if (!function_exists('app_string_pluralizer')) {
-    /**
-     * @return array{singular:string, plural:string}
-     */
+	/**
+	 * @param  string  $name
+	 *
+	 * @return array{singular:string, plural:string}
+	 */
     function app_string_pluralizer(string $name): array {
         $humanFriendly = app_get_human_friendly($name);
 
