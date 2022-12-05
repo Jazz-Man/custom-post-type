@@ -29,9 +29,6 @@
         "roots/wordpress": "^6.1",
         "szepeviktor/phpstan-wordpress": "^1.1"
     },
-    "replace": {
-        "phpstan/phpstan": "*"
-    },
     "extra": {
         "installer-paths": {
             "vendor/wp/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
