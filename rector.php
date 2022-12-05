@@ -14,7 +14,6 @@ return static function (RectorConfig $config): void {
     $config->import(SetList::CODE_QUALITY);
     $config->import(SetList::PHP_74);
     $config->import(SetList::TYPE_DECLARATION);
-    $config->import(SetList::TYPE_DECLARATION_STRICT);
     $config->import(SetList::EARLY_RETURN);
     $config->import(SetList::NAMING);
     $config->import(SetList::CODING_STYLE);
