@@ -3,28 +3,35 @@
 namespace JazzMan\Post;
 
 use JazzMan\AutoloadInterface\AutoloadInterface;
-use WP_Post;
-use WP_Post_Type;
 
 class ArchivePostType implements AutoloadInterface {
+    /**
+     * @var string
+     */
     private const ARCHIVE_POST_TYPE = 'hdptap_cpt_archive';
 
     /**
-     * @var array<string,false|WP_Post>
+     * @var array<string,false|\WP_Post>
      */
-    private static $store = [];
+    private static array $store = [];
 
     public function load(): void {
-        add_action('init', [self::class, 'registerCptArchivePostType']);
-        add_action('registered_post_type', [self::class, 'createArchivePages'], 10, 2);
-        add_filter('parent_file', [self::class, 'adminMenuCorrection']);
+        add_action('init', static function (): void {
+            self::registerCptArchivePostType();
+        });
+        add_action('registered_post_type', static function (string $postType, \WP_Post_Type $wpPostType): void {
+            self::createArchivePages($postType, $wpPostType);
+        }, 10, 2);
+        add_filter('parent_file', static fn (string $parentFile = ''): string => self::adminMenuCorrection($parentFile));
 
-        add_filter('pre_wp_unique_post_slug', [self::class, 'fixArchivePostTypeSlug'], 10, 5);
+        add_filter('pre_wp_unique_post_slug', static fn (?string $original, string $slug, int $postId, string $postStatus, string $postType): ?string => self::fixArchivePostTypeSlug($original, $slug, $postId, $postStatus, $postType), 10, 5);
 
-        add_action('admin_menu', [self::class, 'addAdminMenuArchivePages'], 99);
+        add_action('admin_menu', static function (): void {
+            self::addAdminMenuArchivePages();
+        }, 99);
 
-        add_filter('post_type_archive_title', [self::class, 'archiveTitle'], 10, 2);
-        add_filter('get_the_post_type_description', [self::class, 'archiveDescription'], 10, 2);
+        add_filter('post_type_archive_title', static fn (string $title, string $postType): string => self::archiveTitle($title, $postType), 10, 2);
+        add_filter('get_the_post_type_description', static fn (string $description, \WP_Post_Type $wpPostType): string => self::archiveDescription($description, $wpPostType), 10, 2);
     }
 
     public static function registerCptArchivePostType(): void {
@@ -70,9 +77,6 @@ class ArchivePostType implements AutoloadInterface {
         }
     }
 
-    /**
-     * @return string
-     */
     public static function fixArchivePostTypeSlug(?string $original, string $slug, int $postId, string $postStatus, string $postType): ?string {
         if (self::ARCHIVE_POST_TYPE === $postType) {
             return $slug;
@@ -81,20 +85,32 @@ class ArchivePostType implements AutoloadInterface {
         return $original;
     }
 
-    public static function createArchivePages(string $postType, WP_Post_Type $args): void {
+    public static function createArchivePages(string $postType, \WP_Post_Type $wpPostType): void {
         // if this is the archive pages post type - do nothing.
         // if this post type is not supposed to support an archive - do nothing.
-        if (self::ARCHIVE_POST_TYPE === $postType || empty($args->has_archive) || !isset($args->add_archive_page) || !is_admin()) {
+        if (self::ARCHIVE_POST_TYPE === $postType) {
             return;
         }
 
-        if ($args->add_archive_page) {
+        if (empty($wpPostType->has_archive)) {
+            return;
+        }
+
+        if (!(property_exists($wpPostType, 'add_archive_page') && null !== $wpPostType->add_archive_page)) {
+            return;
+        }
+
+        if (!is_admin()) {
+            return;
+        }
+
+        if ($wpPostType->add_archive_page) {
             $archivePost = self::getPostTypeArchive($postType);
 
-            if (!$archivePost instanceof WP_Post) {
+            if (!$archivePost instanceof \WP_Post) {
                 $postarr = [
                     'post_type' => self::ARCHIVE_POST_TYPE,
-                    'post_title' => $args->labels->name,
+                    'post_title' => $wpPostType->labels->name,
                     'post_status' => 'publish',
                     'post_name' => $postType,
                 ];
@@ -128,8 +144,8 @@ class ArchivePostType implements AutoloadInterface {
     public static function addAdminMenuArchivePages(): void {
         $post_type_object = get_post_type_object(self::ARCHIVE_POST_TYPE);
 
-        if ($post_type_object instanceof WP_Post_Type) {
-            /** @var WP_Post[] $post_types */
+        if ($post_type_object instanceof \WP_Post_Type) {
+            /** @var \WP_Post[] $post_types */
             $post_types = get_posts(
                 [
                     'post_type' => self::ARCHIVE_POST_TYPE,
@@ -138,18 +154,16 @@ class ArchivePostType implements AutoloadInterface {
                 ]
             );
 
-            if (!empty($post_types)) {
-                foreach ($post_types as $post_type) {
-                    // add the menu item for this post type.
-                    add_submenu_page(
-                        sprintf('edit.php?post_type=%s', esc_attr($post_type->post_name)),
-                        'Archive Page',
-                        'Archive Page',
-                        'edit_posts',
-                        sprintf("{$post_type_object->_edit_link}&action=edit", $post_type->ID),
-                        false
-                    );
-                }
+            foreach ($post_types as $post_type) {
+                // add the menu item for this post type.
+                add_submenu_page(
+                    sprintf('edit.php?post_type=%s', esc_attr($post_type->post_name)),
+                    'Archive Page',
+                    'Archive Page',
+                    'edit_posts',
+                    sprintf(sprintf('%s&action=edit', $post_type_object->_edit_link), $post_type->ID),
+                    false
+                );
             }
         }
     }
@@ -157,14 +171,18 @@ class ArchivePostType implements AutoloadInterface {
     public static function archiveTitle(string $title, string $postType): string {
         $object = get_post_type_object($postType);
 
-        if (empty($object->has_archive) || !isset($object->add_archive_page)) {
+        if (empty($object->has_archive)) {
+            return $title;
+        }
+
+        if (!(property_exists($object, 'add_archive_page') && null !== $object->add_archive_page)) {
             return $title;
         }
 
         if ($object->add_archive_page) {
             $archivePost = self::getPostTypeArchive($postType);
 
-            if ($archivePost instanceof WP_Post) {
+            if ($archivePost instanceof \WP_Post) {
                 return apply_filters('the_title', $archivePost->post_title);
             }
 
@@ -174,15 +192,19 @@ class ArchivePostType implements AutoloadInterface {
         return $title;
     }
 
-    public static function archiveDescription(string $description, WP_Post_Type $object): string {
-        if (empty($object->has_archive) || !isset($object->add_archive_page)) {
+    public static function archiveDescription(string $description, \WP_Post_Type $wpPostType): string {
+        if (empty($wpPostType->has_archive)) {
             return $description;
         }
 
-        if ($object->add_archive_page) {
-            $archivePost = self::getPostTypeArchive($object->name);
+        if (!(property_exists($wpPostType, 'add_archive_page') && null !== $wpPostType->add_archive_page)) {
+            return $description;
+        }
 
-            if ($archivePost instanceof WP_Post) {
+        if ($wpPostType->add_archive_page) {
+            $archivePost = self::getPostTypeArchive($wpPostType->name);
+
+            if ($archivePost instanceof \WP_Post) {
                 return apply_filters('the_content', $archivePost->post_content);
             }
 
@@ -193,7 +215,7 @@ class ArchivePostType implements AutoloadInterface {
     }
 
     /**
-     * @return null|WP_Post
+     * @return null|\WP_Post
      */
     private static function getPostTypeArchive(string $postType) {
         global $wpdb;
@@ -211,10 +233,10 @@ class ArchivePostType implements AutoloadInterface {
                 SQL, 'hdptap_cpt_archive', $postType));
 
             if (null !== $postId) {
-                self::$store[$postType] = WP_Post::get_instance((int) $postId);
+                self::$store[$postType] = \WP_Post::get_instance((int) $postId);
             }
         }
 
-        return !empty(self::$store[$postType]) ? self::$store[$postType] : null;
+        return empty(self::$store[$postType]) ? null : self::$store[$postType];
     }
 }

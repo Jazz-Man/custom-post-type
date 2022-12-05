@@ -2,10 +2,6 @@
 
 namespace JazzMan\Post;
 
-use WP_Post;
-use WP_Post_Type;
-use WP_Taxonomy;
-
 /**
  * Class CustomPostType.
  */
@@ -17,7 +13,7 @@ class CustomPostType {
     /**
      * @var array<string,mixed>
      */
-    private array $postTypeOptions;
+    private array $postTypeOptions = [];
 
     private string $singularLabel;
 
@@ -35,8 +31,8 @@ class CustomPostType {
 
         $this->registerPostType();
 
-        add_filter('post_updated_messages', [$this, 'updatedMessages']);
-        add_filter('bulk_post_updated_messages', [$this, 'bulkUpdatedMessages'], 10, 2);
+        add_filter('post_updated_messages', fn (array $messages = []): array => $this->updatedMessages($messages));
+        add_filter('bulk_post_updated_messages', fn (array $messages = [], array $counts = []): array => $this->bulkUpdatedMessages($messages, $counts), 10, 2);
     }
 
     /**
@@ -45,32 +41,32 @@ class CustomPostType {
      * @param array<string,string> $columns
      */
     public function setColumns(array $columns = []): void {
-        add_filter("manage_edit-{$this->post_type}_columns", function (array $wp_columns = []) use ($columns) {
-            $newColumns = [];
+        add_filter(
+            sprintf('manage_edit-%s_columns', $this->post_type),
+            static function (array $wp_columns = []) use ($columns): array {
+                $newColumns = [];
+                $newColumns['cb'] = $wp_columns['cb'];
+                $newColumns['title'] = $wp_columns['title'];
+                $date = $wp_columns['date'];
+                unset($wp_columns['cb'], $wp_columns['title'], $wp_columns['date']);
 
-            $newColumns['cb'] = $wp_columns['cb'];
-            $newColumns['title'] = $wp_columns['title'];
-
-            $date = $wp_columns['date'];
-
-            unset($wp_columns['cb'], $wp_columns['title'], $wp_columns['date']);
-
-            foreach (['cb', 'title', 'date'] as $col) {
-                if (!empty($columns[$col])) {
-                    unset($columns[$col]);
+                foreach (['cb', 'title', 'date'] as $col) {
+                    if (!empty($columns[$col])) {
+                        unset($columns[$col]);
+                    }
                 }
+
+                $merge = wp_parse_args($wp_columns, $columns);
+
+                foreach ($merge as $key => $value) {
+                    $newColumns[$key] = $value;
+                }
+
+                $newColumns['date'] = $date;
+
+                return $newColumns;
             }
-
-            $merge = wp_parse_args($wp_columns, $columns);
-
-            foreach ($merge as $key => $value) {
-                $newColumns[$key] = $value;
-            }
-
-            $newColumns['date'] = $date;
-
-            return $newColumns;
-        });
+        );
     }
 
     /**
@@ -81,11 +77,11 @@ class CustomPostType {
      */
     public function setPopulateColumns(string $column, callable $callback): void {
         add_action(
-            "manage_{$this->post_type}_posts_custom_column",
-            function (string $col = '', int $postId = 0) use ($callback): void {
+            sprintf('manage_%s_posts_custom_column', $this->post_type),
+            static function (string $col = '', int $postId = 0) use ($callback): void {
                 global $post;
 
-                if (!$post instanceof WP_Post) {
+                if (!$post instanceof \WP_Post) {
                     return;
                 }
 
@@ -100,12 +96,12 @@ class CustomPostType {
                         break;
 
                     case 0 === strpos($col, 'meta_'):
-                        $this->printMetaColumn($postId, ltrim($col, 'meta_'), $post);
+                        self::printMetaColumn($postId, ltrim($col, 'meta_'), $post);
 
                         break;
 
                     case 'icon':
-                        $this->printIconColumn($postId, $post);
+                        self::printIconColumn($postId, $post);
 
                         break;
 
@@ -179,10 +175,10 @@ class CustomPostType {
 
         $taxonomyObject = get_taxonomy($taxonomy);
 
-        if ($taxonomyObject instanceof WP_Taxonomy) {
+        if ($taxonomyObject instanceof \WP_Taxonomy) {
             add_filter(
-                "register_{$taxonomy}_taxonomy_args",
-                fn (array $args) => wp_parse_args($options, $args)
+                sprintf('register_%s_taxonomy_args', $taxonomy),
+                static fn (array $args) => wp_parse_args($options, $args)
             );
         } else {
             add_action('init', function () use ($taxonomy, $options): void {
@@ -240,7 +236,7 @@ class CustomPostType {
             9 => sprintf(
                 '%s scheduled for: <strong>%s</strong>.',
                 esc_attr($this->singularLabel),
-                $post instanceof WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
+                $post instanceof \WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
             ),
             10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
         ];
@@ -259,28 +255,28 @@ class CustomPostType {
     public function bulkUpdatedMessages(array $messages = [], array $counts = []): array {
         $messages[$this->post_type_name] = [
             'updated' => _n(
-                "%s {$this->singularLabel} updated.",
-                "%s {$this->pluralLabel} updated.",
+                sprintf('%%s %s updated.', $this->singularLabel),
+                sprintf('%%s %s updated.', $this->pluralLabel),
                 $counts['updated']
             ),
             'locked' => _n(
-                "%s {$this->singularLabel} not updated, somebody is editing it.",
-                "%s {$this->pluralLabel} not updated, somebody is editing them.",
+                sprintf('%%s %s not updated, somebody is editing it.', $this->singularLabel),
+                sprintf('%%s %s not updated, somebody is editing them.', $this->pluralLabel),
                 $counts['locked']
             ),
             'deleted' => _n(
-                "%s {$this->singularLabel} permanently deleted.",
-                "%s {$this->pluralLabel} permanently deleted.",
+                sprintf('%%s %s permanently deleted.', $this->singularLabel),
+                sprintf('%%s %s permanently deleted.', $this->pluralLabel),
                 $counts['deleted']
             ),
             'trashed' => _n(
-                "%s {$this->singularLabel} moved to the Trash.",
-                "%s {$this->pluralLabel} moved to the Trash.",
+                sprintf('%%s %s moved to the Trash.', $this->singularLabel),
+                sprintf('%%s %s moved to the Trash.', $this->pluralLabel),
                 $counts['trashed']
             ),
             'untrashed' => _n(
-                "%s {$this->singularLabel} restored from the Trash.",
-                "%s {$this->pluralLabel} restored from the Trash.",
+                sprintf('%%s %s restored from the Trash.', $this->singularLabel),
+                sprintf('%%s %s restored from the Trash.', $this->pluralLabel),
                 $counts['untrashed']
             ),
         ];
@@ -293,10 +289,10 @@ class CustomPostType {
 
         $options = $this->getPostTypeOptions($this->postTypeOptions);
 
-        if ($typeObject instanceof WP_Post_Type) {
+        if ($typeObject instanceof \WP_Post_Type) {
             add_filter(
-                "register_{$this->post_type_name}_post_type_args",
-                fn (array $args) => wp_parse_args($options, $args)
+                sprintf('register_%s_post_type_args', $this->post_type_name),
+                static fn (array $args) => wp_parse_args($options, $args)
             );
         } else {
             add_action('init', function () use ($options): void {
@@ -323,15 +319,19 @@ class CustomPostType {
                 return;
             }
 
-            /** @var WP_Taxonomy[] $taxonomies */
+            /** @var \WP_Taxonomy[] $taxonomies */
             $taxonomies = get_object_taxonomies($this->post_type, 'objects');
 
-            if (empty($taxonomies)) {
+            if ([] === $taxonomies) {
                 return;
             }
 
             foreach ($taxonomies as $taxonomy => $object) {
-                if (!$object->show_admin_column || empty($object->query_var)) {
+                if (!$object->show_admin_column) {
+                    continue;
+                }
+
+                if (empty($object->query_var)) {
                     continue;
                 }
 
@@ -392,19 +392,19 @@ class CustomPostType {
         return array_replace_recursive($defaults, $options);
     }
 
-    private function printIconColumn(int $postId, WP_Post $post): void {
-        $link = sprintf('post.php?post=%d&action=edit', $post->ID);
+    private static function printIconColumn(int $postId, \WP_Post $wpPost): void {
+        $link = sprintf('post.php?post=%d&action=edit', $wpPost->ID);
 
         if (has_post_thumbnail($postId)) {
             printf(
                 '<a title="%s Thumbnail" href="%s">%s</a>',
-                esc_attr($post->post_title),
+                esc_attr($wpPost->post_title),
                 esc_url($link),
                 get_the_post_thumbnail(
                     $postId,
                     [60, 60],
                     [
-                        'alt' => $post->post_title,
+                        'alt' => $wpPost->post_title,
                     ]
                 )
             );
@@ -413,19 +413,19 @@ class CustomPostType {
                 '<a title="%3$s Thumbnail" href="%1$s"><img src="%2$s" alt="%3$s"/></a>',
                 esc_url($link),
                 esc_url(includes_url('images/crystal/default.png')),
-                esc_attr($post->post_title)
+                esc_attr($wpPost->post_title)
             );
         }
     }
 
-    private function printMetaColumn(int $postId, string $metaKey, WP_Post $post): void {
+    private static function printMetaColumn(int $postId, string $metaKey, \WP_Post $wpPost): void {
         /** @var null|string $meta */
         $meta = get_post_meta($postId, $metaKey, true);
 
         if (!empty($meta)) {
             printf(
                 '<span title="%s Meta: %s">%s</span>',
-                esc_attr($post->post_title),
+                esc_attr($wpPost->post_title),
                 esc_attr($metaKey),
                 esc_attr($meta)
             );

@@ -73,7 +73,7 @@ if (!function_exists('app_get_taxonomy_labels')) {
 
 if (!function_exists('app_get_human_friendly')) {
     function app_get_human_friendly(string $name): string {
-        $ucwords = function (string $string): string {
+        $ucwords = static function (string $string): string {
             if (function_exists('mb_convert_case')) {
                 return mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
             }
@@ -81,7 +81,7 @@ if (!function_exists('app_get_human_friendly')) {
             return ucwords($string);
         };
 
-        $strtolower = function (string $string): string {
+        $strtolower = static function (string $string): string {
             if (function_exists('mb_strtolower')) {
                 return mb_strtolower($string, 'UTF-8');
             }
@@ -103,7 +103,7 @@ if (!function_exists('app_string_pluralizer')) {
         $singular = Pluralizer::singular($humanFriendly);
         $plural = Pluralizer::plural($humanFriendly);
 
-        return compact('singular', 'plural');
+        return ['singular' => $singular, 'plural' => $plural];
     }
 }
 
@@ -125,7 +125,7 @@ if (!function_exists('app_get_wp_block')) {
                 'name' => $postName,
             ]);
 
-            if (!empty($posts)) {
+            if ([] !== $posts) {
                 $result = reset($posts);
                 wp_cache_set($cacheKey, $result, ReusableBlocks::CACHE_GROUP);
             }
