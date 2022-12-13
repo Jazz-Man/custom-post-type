@@ -26,9 +26,7 @@ class ArchivePostType implements AutoloadInterface {
 
         add_filter('pre_wp_unique_post_slug', static fn (?string $original, string $slug, int $postId, string $postStatus, string $postType): ?string => self::fixArchivePostTypeSlug($original, $slug, $postId, $postStatus, $postType), 10, 5);
 
-        add_action('admin_menu', static function (): void {
-            self::addAdminMenuArchivePages();
-        }, 99);
+        add_action('admin_menu', [self::class,'addAdminMenuArchivePages'], 99);
 
         add_filter('post_type_archive_title', static fn (string $title, string $postType): string => self::archiveTitle($title, $postType), 10, 2);
         add_filter('get_the_post_type_description', static fn (string $description, \WP_Post_Type $wpPostType): string => self::archiveDescription($description, $wpPostType), 10, 2);
@@ -142,7 +140,8 @@ class ArchivePostType implements AutoloadInterface {
     }
 
     public static function addAdminMenuArchivePages(): void {
-        $post_type_object = get_post_type_object(self::ARCHIVE_POST_TYPE);
+
+		$post_type_object = get_post_type_object(self::ARCHIVE_POST_TYPE);
 
         if ($post_type_object instanceof \WP_Post_Type) {
             /** @var \WP_Post[] $post_types */
