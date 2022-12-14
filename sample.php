@@ -5,6 +5,7 @@ use JazzMan\Post\CustomPostType;
 // create a book custom post type
 $books = new CustomPostType('book');
 
+
 // create a genre taxonomy
 $books->registerTaxonomy('genre');
 
