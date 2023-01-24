@@ -31,8 +31,18 @@ class CustomPostType {
 
         $this->registerPostType();
 
-        add_filter('post_updated_messages', fn (array $messages = []): array => $this->updatedMessages($messages));
-        add_filter('bulk_post_updated_messages', fn (array $messages = [], array $counts = []): array => $this->bulkUpdatedMessages($messages, $counts), 10, 2);
+        add_filter('post_updated_messages', /**
+         * @return array[]
+         *
+         * @psalm-return array<string, array<int|string, mixed>>
+         */
+        fn (array $messages = []): array => $this->updatedMessages($messages));
+        add_filter('bulk_post_updated_messages', /**
+         * @return string[][]
+         *
+         * @psalm-return array<string, array<string, string>>
+         */
+        fn (array $messages = [], array $counts = []): array => $this->bulkUpdatedMessages($messages, $counts), 10, 2);
     }
 
     /**
@@ -43,6 +53,9 @@ class CustomPostType {
     public function setColumns(array $columns = []): void {
         add_filter(
             sprintf('manage_edit-%s_columns', $this->post_type),
+            /**
+             * @psalm-return array{date: mixed,...}
+             */
             static function (array $wp_columns = []) use ($columns): array {
                 $newColumns = [];
                 $newColumns['cb'] = $wp_columns['cb'];
@@ -319,7 +332,7 @@ class CustomPostType {
                 return;
             }
 
-            /** @var \WP_Taxonomy[] $taxonomies */
+            /** @var array<string,\WP_Taxonomy> $taxonomies */
             $taxonomies = get_object_taxonomies($this->post_type, 'objects');
 
             if ([] === $taxonomies) {
@@ -335,9 +348,6 @@ class CustomPostType {
                     continue;
                 }
 
-                /** @var null|string $currentTerm */
-                $currentTerm = filter_input(INPUT_GET, $object->query_var, FILTER_SANITIZE_STRING);
-
                 $options = [
                     'hide_empty' => 0,
                     'hierarchical' => 1,
@@ -346,14 +356,11 @@ class CustomPostType {
                     'name' => $object->query_var,
                     'value_field' => 'slug',
                     'taxonomy' => $taxonomy,
+                    'selected' => get_query_var($object->query_var),
                 ];
 
                 if (!empty($object->labels->all_items)) {
                     $options['show_option_all'] = (string) $object->labels->all_items;
-                }
-
-                if (!empty($currentTerm)) {
-                    $options['selected'] = $currentTerm;
                 }
 
                 printf(

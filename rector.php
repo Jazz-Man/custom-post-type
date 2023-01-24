@@ -11,14 +11,16 @@ return static function (RectorConfig $config): void {
     // here we can define, what sets of rules will be applied
     // tip: use "SetList" class to autocomplete sets
 
-    $config->import(SetList::CODE_QUALITY);
-    $config->import(SetList::PHP_74);
-    $config->import(SetList::TYPE_DECLARATION);
-    $config->import(SetList::EARLY_RETURN);
-    $config->import(SetList::NAMING);
-    $config->import(SetList::CODING_STYLE);
-    $config->import(SetList::DEAD_CODE);
-    $config->import(LevelSetList::UP_TO_PHP_74);
+    $config->sets([
+        SetList::CODE_QUALITY,
+        SetList::PHP_74,
+        SetList::TYPE_DECLARATION,
+        SetList::EARLY_RETURN,
+        SetList::NAMING,
+        SetList::CODING_STYLE,
+        SetList::DEAD_CODE,
+        LevelSetList::UP_TO_PHP_74,
+    ]);
     $config->fileExtensions(['php']);
     $config->phpVersion(PhpVersion::PHP_74);
     $config->importNames();

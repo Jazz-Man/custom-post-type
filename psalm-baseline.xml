@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.x-dev@">
+<files psalm-version="5.5.0@b63061a27f2683ec0f3509012bb22daab3b65b61">
   <file src="src/ArchivePostType.php">
-    <ArgumentTypeCoercion occurrences="1">
+    <ArgumentTypeCoercion>
       <code>$postarr</code>
     </ArgumentTypeCoercion>
-    <InvalidArgument occurrences="2">
+    <InvalidArgument>
       <code>false</code>
     </InvalidArgument>
-    <PossiblyInvalidPropertyFetch occurrences="1">
+    <PossiblyInvalidPropertyFetch>
       <code>$post-&gt;post_name</code>
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/CustomPostType.php">
-    <PossiblyInvalidDocblockTag occurrences="36">
+    <PossiblyInvalidDocblockTag>
       <code>@var array         $args</code>
       <code>@var array|bool    $rewrite {</code>
       <code>@var array|string  $default_term {</code>
