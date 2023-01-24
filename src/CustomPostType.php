@@ -335,9 +335,6 @@ class CustomPostType {
                     continue;
                 }
 
-                /** @var null|string $currentTerm */
-                $currentTerm = filter_input(INPUT_GET, $object->query_var, FILTER_SANITIZE_STRING);
-
                 $options = [
                     'hide_empty' => 0,
                     'hierarchical' => 1,
@@ -346,14 +343,11 @@ class CustomPostType {
                     'name' => $object->query_var,
                     'value_field' => 'slug',
                     'taxonomy' => $taxonomy,
+                    'selected' => get_query_var($object->query_var),
                 ];
 
                 if (!empty($object->labels->all_items)) {
                     $options['show_option_all'] = (string) $object->labels->all_items;
-                }
-
-                if (!empty($currentTerm)) {
-                    $options['selected'] = $currentTerm;
                 }
 
                 printf(
