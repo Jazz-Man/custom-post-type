@@ -22,14 +22,14 @@ class ArchivePostType implements AutoloadInterface {
         add_action('registered_post_type', static function (string $postType, \WP_Post_Type $wpPostType): void {
             self::createArchivePages($postType, $wpPostType);
         }, 10, 2);
-        add_filter('parent_file', static fn (string $parentFile = ''): string => self::adminMenuCorrection($parentFile));
+        add_filter('parent_file', [self::class, 'adminMenuCorrection']);
 
-        add_filter('pre_wp_unique_post_slug', static fn (?string $original, string $slug, int $postId, string $postStatus, string $postType): ?string => self::fixArchivePostTypeSlug($original, $slug, $postId, $postStatus, $postType), 10, 5);
+        add_filter('pre_wp_unique_post_slug', [self::class, 'fixArchivePostTypeSlug'], 10, 5);
 
         add_action('admin_menu', [self::class, 'addAdminMenuArchivePages'], 99);
 
-        add_filter('post_type_archive_title', static fn (string $title, string $postType): string => self::archiveTitle($title, $postType), 10, 2);
-        add_filter('get_the_post_type_description', static fn (string $description, \WP_Post_Type $wpPostType): string => self::archiveDescription($description, $wpPostType), 10, 2);
+        add_filter('post_type_archive_title', [self::class, 'archiveTitle'], 10, 2);
+        add_filter('get_the_post_type_description', [self::class, 'archiveDescription'], 10, 2);
     }
 
     public static function registerCptArchivePostType(): void {
@@ -191,6 +191,7 @@ class ArchivePostType implements AutoloadInterface {
     }
 
     public static function archiveDescription(string $description, \WP_Post_Type $wpPostType): string {
+
         if (empty($wpPostType->has_archive)) {
             return $description;
         }
