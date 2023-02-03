@@ -6,8 +6,12 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 
 class PostTypeMessages implements AutoloadInterface {
     public function load(): void {
-        add_filter('post_updated_messages', [self::class, 'updatedMessages']);
-        add_filter('bulk_post_updated_messages', [self::class, 'bulkUpdatedMessages'], 10, 2);
+        add_filter('post_updated_messages', static function (array $messages = []): array {
+            return self::updatedMessages($messages);
+        });
+        add_filter('bulk_post_updated_messages', static function (array $messages = [], array $counts = []): array {
+            return self::bulkUpdatedMessages($messages, $counts);
+        }, 10, 2);
     }
 
     /**
@@ -18,7 +22,7 @@ class PostTypeMessages implements AutoloadInterface {
      *
      * @psalm-return array<string, array<string, string>>
      */
-    public static function bulkUpdatedMessages(array $messages = [], array $counts = []): array {
+    private static function bulkUpdatedMessages(array $messages = [], array $counts = []): array {
         global $post_type;
 
         $labels = self::getPostTypeLabelForMessages();
@@ -69,7 +73,7 @@ class PostTypeMessages implements AutoloadInterface {
      *
      * @psalm-return array<string, array<int|string, mixed>>
      */
-    public static function updatedMessages(array $messages = []): array {
+    private static function updatedMessages(array $messages = []): array {
         global $post_type, $post;
 
         $labels = self::getPostTypeLabelForMessages();
@@ -137,14 +141,18 @@ class PostTypeMessages implements AutoloadInterface {
 
         $labels = (array) $post_type_object->labels;
 
-        if (empty($labels)) {
+        if ([] === $labels) {
             return false;
         }
 
-        $singular = !empty($labels['singular_name']) ? $labels['singular_name'] : false;
-        $plural = !empty($labels['all_items']) ? $labels['all_items'] : false;
+        $singular = empty($labels['singular_name']) ? false : $labels['singular_name'];
+        $plural = empty($labels['all_items']) ? false : $labels['all_items'];
 
-        if (empty($singular) || empty($plural)) {
+        if (empty($singular)) {
+            return false;
+        }
+
+        if (empty($plural)) {
             return false;
         }
 

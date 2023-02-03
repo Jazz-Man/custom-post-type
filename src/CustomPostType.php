@@ -175,7 +175,9 @@ class CustomPostType {
         if ($taxonomyObject instanceof \WP_Taxonomy) {
             add_filter(
                 sprintf('register_%s_taxonomy_args', $taxonomy),
-                static fn (array $args) => wp_parse_args($options, $args)
+                function (array $args) use ($options) {
+                    return wp_parse_args($options, $args);
+                }
             );
         } else {
             add_action('init', function () use ($taxonomy, $options): void {
@@ -208,7 +210,9 @@ class CustomPostType {
         if ($typeObject instanceof \WP_Post_Type) {
             add_filter(
                 sprintf('register_%s_post_type_args', $this->post_type_name),
-                static fn (array $args) => wp_parse_args($options, $args)
+                function (array $args) use ($options) {
+                    return wp_parse_args($options, $args);
+                }
             );
         } else {
             add_action('init', function () use ($options): void {
