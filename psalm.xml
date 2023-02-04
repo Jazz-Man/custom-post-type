@@ -29,5 +29,10 @@
     </stubs>
     <globals>
         <var name="ABSPATH" type="string"/>
+        <var name="wpdb" type="\wpdb"/>
+        <var name="post" type="\WP_Post|null"/>
+        <var name="current_screen" type="\WP_Screen|null"/>
+        <var name="post_type" type="string|null"/>
+        <var name="post_type_object" type="null|\WP_Post_Type"/>
     </globals>
 </psalm>

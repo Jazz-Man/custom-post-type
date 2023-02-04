@@ -5,39 +5,39 @@
       <code>$postarr</code>
     </ArgumentTypeCoercion>
     <InvalidArgument>
+      <code>[
+                    'description' =&gt; 'Archive posts associated with each post type.',
+                    'public' =&gt; false,
+                    'show_in_nav_menus' =&gt; false,
+                    'show_in_admin_bar' =&gt; false,
+                    'exclude_from_search' =&gt; true,
+                    'show_ui' =&gt; true,
+                    'show_in_menu' =&gt; true,
+                    'can_export' =&gt; true,
+                    'delete_with_user' =&gt; false,
+                    'hierarchical' =&gt; false,
+                    'has_archive' =&gt; false,
+                    'menu_icon' =&gt; 'dashicons-media-text',
+                    'query_var' =&gt; 'hdptap_cpt_archive',
+                    'menu_position' =&gt; 26,
+                    'show_in_rest' =&gt; true,
+                    'labels' =&gt; $labels,
+                    'supports' =&gt; $supports,
+                ]</code>
       <code>false</code>
     </InvalidArgument>
-    <PossiblyInvalidPropertyFetch>
-      <code>$post-&gt;post_name</code>
-    </PossiblyInvalidPropertyFetch>
+    <UndefinedPropertyFetch>
+      <code>$object-&gt;add_archive_page</code>
+      <code>$wpPostType-&gt;add_archive_page</code>
+      <code>$wpPostType-&gt;add_archive_page</code>
+    </UndefinedPropertyFetch>
   </file>
   <file src="src/CustomPostType.php">
-    <PossiblyInvalidDocblockTag>
-      <code>@var array         $args</code>
-      <code>@var array|bool    $rewrite {</code>
-      <code>@var array|string  $default_term {</code>
-      <code>@var bool          $_builtin</code>
-      <code>@var bool          $hierarchical</code>
-      <code>@var bool          $public</code>
-      <code>@var bool          $publicly_queryable</code>
-      <code>@var bool          $show_admin_column</code>
-      <code>@var bool          $show_in_menu</code>
-      <code>@var bool          $show_in_nav_menus</code>
-      <code>@var bool          $show_in_quick_edit</code>
-      <code>@var bool          $show_in_rest</code>
-      <code>@var bool          $show_tagcloud</code>
-      <code>@var bool          $show_ui</code>
-      <code>@var bool          $sort</code>
-      <code>@var bool|callable $meta_box_cb</code>
-      <code>@var bool|string   $query_var</code>
-      <code>@var callable      $meta_box_sanitize_cb</code>
-      <code>@var callable      $update_count_callback</code>
-      <code>@var string        $description</code>
-      <code>@var string        $rest_base</code>
-      <code>@var string        $rest_controller_class</code>
-      <code>@var string        $rest_namespace</code>
-      <code>@var string[]      $capabilities {</code>
-      <code>@var string[]      $labels</code>
-    </PossiblyInvalidDocblockTag>
+    <ArgumentTypeCoercion>
+      <code>$options</code>
+    </ArgumentTypeCoercion>
+    <NoValue>
+      <code>$col</code>
+    </NoValue>
   </file>
 </files>

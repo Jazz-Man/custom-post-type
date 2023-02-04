@@ -16,44 +16,9 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:registerTaxonomy\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^PHPDoc tag @var above a method has no effect\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$args has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/CustomPostType.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$default_term has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/CustomPostType.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$rewrite has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/CustomPostType.php
-
-		-
 			message: "#^Parameter \\#1 \\$args of function wp_dropdown_categories expects array\\{show_option_all\\?\\: string, show_option_none\\?\\: string, option_none_value\\?\\: string, orderby\\?\\: string, pad_counts\\?\\: bool, show_count\\?\\: bool\\|int, echo\\?\\: bool\\|int, hierarchical\\?\\: bool\\|int, \\.\\.\\.\\}, array\\{hide_empty\\: 0, hierarchical\\: 1, show_count\\: 0, orderby\\: 'name', name\\: non\\-falsy\\-string, value_field\\: 'slug', taxonomy\\: string, selected\\: mixed, \\.\\.\\.\\} given\\.$#"
 			count: 1
 			path: src/CustomPostType.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\PostTypeMessages\\:\\:bulkUpdatedMessages\\(\\) should return array\\<string, array\\<string, string\\>\\> but returns array\\<int\\|string, array\\<string, string\\>\\>\\.$#"
-			count: 1
-			path: src/PostTypeMessages.php
-
-		-
-			message: "#^Method JazzMan\\\\Post\\\\PostTypeMessages\\:\\:updatedMessages\\(\\) should return array\\<string, array\\<int\\|string, mixed\\>\\> but returns array\\<int\\|string, array\\<int\\|string, mixed\\>\\>\\.$#"
-			count: 1
-			path: src/PostTypeMessages.php
 
 		-
 			message: "#^Function app_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
