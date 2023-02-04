@@ -6,12 +6,22 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 
 class PostTypeMessages implements AutoloadInterface {
     public function load(): void {
-        add_filter('post_updated_messages', static function (array $messages = []): array {
-            return self::updatedMessages($messages);
-        });
-        add_filter('bulk_post_updated_messages', static function (array $messages = [], array $counts = []): array {
-            return self::bulkUpdatedMessages($messages, $counts);
-        }, 10, 2);
+        add_filter('post_updated_messages', /**
+         * @return array[]
+         *
+         * @psalm-return array<string, array<int|string, mixed>>
+         */
+            static function (array $messages = []): array {
+                return self::updatedMessages($messages);
+            });
+        add_filter('bulk_post_updated_messages', /**
+         * @return string[][]
+         *
+         * @psalm-return array<string, array<string, string>>
+         */
+            static function (array $messages = [], array $counts = []): array {
+                return self::bulkUpdatedMessages($messages, $counts);
+            }, 10, 2);
     }
 
     /**
@@ -126,7 +136,9 @@ class PostTypeMessages implements AutoloadInterface {
     }
 
     /**
-     * @return array<string,string>|false
+     * @return false|string[]
+     *
+     * @psalm-return array{singular: string, plural: string}|false
      */
     private static function getPostTypeLabelForMessages() {
         global $post_type, $post_type_object;
