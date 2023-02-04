@@ -46,6 +46,16 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
+			message: "#^Method JazzMan\\\\Post\\\\PostTypeMessages\\:\\:bulkUpdatedMessages\\(\\) should return array\\<string, array\\<string, string\\>\\> but returns array\\<int\\|string, array\\<string, string\\>\\>\\.$#"
+			count: 1
+			path: src/PostTypeMessages.php
+
+		-
+			message: "#^Method JazzMan\\\\Post\\\\PostTypeMessages\\:\\:updatedMessages\\(\\) should return array\\<string, array\\<int\\|string, mixed\\>\\> but returns array\\<int\\|string, array\\<int\\|string, mixed\\>\\>\\.$#"
+			count: 1
+			path: src/PostTypeMessages.php
+
+		-
 			message: "#^Function app_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/helper.php

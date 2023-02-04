@@ -15,34 +15,18 @@ class CustomPostType {
      */
     private array $postTypeOptions = [];
 
-    private string $singularLabel;
-
-    private string $pluralLabel;
-
     /**
      * CustomPostType constructor.
      *
      * @param array<string,mixed> $options
      */
     public function __construct(string $postType, array $options = []) {
-        $this->initPostTypeConfig($postType);
+        $this->post_type_name = $postType;
+        $this->post_type = sanitize_key($this->post_type_name);
 
         $this->postTypeOptions = $options;
 
         $this->registerPostType();
-
-        add_filter('post_updated_messages', /**
-         * @return array[]
-         *
-         * @psalm-return array<string, array<int|string, mixed>>
-         */
-        fn (array $messages = []): array => $this->updatedMessages($messages));
-        add_filter('bulk_post_updated_messages', /**
-         * @return string[][]
-         *
-         * @psalm-return array<string, array<string, string>>
-         */
-        fn (array $messages = [], array $counts = []): array => $this->bulkUpdatedMessages($messages, $counts), 10, 2);
     }
 
     /**
@@ -191,7 +175,9 @@ class CustomPostType {
         if ($taxonomyObject instanceof \WP_Taxonomy) {
             add_filter(
                 sprintf('register_%s_taxonomy_args', $taxonomy),
-                static fn (array $args) => wp_parse_args($options, $args)
+                function (array $args) use ($options) {
+                    return wp_parse_args($options, $args);
+                }
             );
         } else {
             add_action('init', function () use ($taxonomy, $options): void {
@@ -208,93 +194,12 @@ class CustomPostType {
         $this->postTypeOptions['menu_icon'] = false !== stripos($icon, 'dashicons') ? $icon : 'dashicons-admin-page';
     }
 
-    /**
-     * @param array<string,array<string,mixed>> $messages
-     *
-     * @return array[]
-     *
-     * @psalm-return array<string, array<int|string, mixed>>
-     */
-    public function updatedMessages(array $messages = []): array {
-        $post = get_post();
-
-        /** @var null|int $revision */
-        $revision = filter_input(INPUT_GET, 'revision', FILTER_SANITIZE_NUMBER_INT);
-
-        /** @var false|string $revisionTitle */
-        $revisionTitle = false;
-
-        if (!empty($revision)) {
-            $title = wp_post_revision_title($revision, false);
-
-            if (!empty($title)) {
-                $revisionTitle = sprintf(
-                    '%1$s restored to revision from %2$s',
-                    esc_attr($this->singularLabel),
-                    $title
-                );
-            }
-        }
-
-        $messages[$this->post_type_name] = [
-            0 => '',
-            1 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            2 => 'Custom field updated.',
-            3 => 'Custom field deleted.',
-            4 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            5 => $revisionTitle,
-            6 => sprintf('%s updated.', esc_attr($this->singularLabel)),
-            7 => sprintf('%s saved.', esc_attr($this->singularLabel)),
-            8 => sprintf('%s submitted.', esc_attr($this->singularLabel)),
-            9 => sprintf(
-                '%s scheduled for: <strong>%s</strong>.',
-                esc_attr($this->singularLabel),
-                $post instanceof \WP_Post ? date_i18n('M j, Y @ G:i', strtotime($post->post_date)) : ''
-            ),
-            10 => sprintf('%s draft updated.', esc_attr($this->singularLabel)),
-        ];
-
-        return $messages;
+    public function onSave(callable $function, int $priority = 10, int $acceptedArgs = 2): void {
+        add_action(sprintf('save_post_%s', $this->post_type), $function, $priority, $acceptedArgs);
     }
 
-    /**
-     * @param array<string,array<string,string>> $messages
-     * @param array<string,int>                  $counts
-     *
-     * @return string[][]
-     *
-     * @psalm-return array<string, array<string, string>>
-     */
-    public function bulkUpdatedMessages(array $messages = [], array $counts = []): array {
-        $messages[$this->post_type_name] = [
-            'updated' => _n(
-                sprintf('%%s %s updated.', $this->singularLabel),
-                sprintf('%%s %s updated.', $this->pluralLabel),
-                $counts['updated']
-            ),
-            'locked' => _n(
-                sprintf('%%s %s not updated, somebody is editing it.', $this->singularLabel),
-                sprintf('%%s %s not updated, somebody is editing them.', $this->pluralLabel),
-                $counts['locked']
-            ),
-            'deleted' => _n(
-                sprintf('%%s %s permanently deleted.', $this->singularLabel),
-                sprintf('%%s %s permanently deleted.', $this->pluralLabel),
-                $counts['deleted']
-            ),
-            'trashed' => _n(
-                sprintf('%%s %s moved to the Trash.', $this->singularLabel),
-                sprintf('%%s %s moved to the Trash.', $this->pluralLabel),
-                $counts['trashed']
-            ),
-            'untrashed' => _n(
-                sprintf('%%s %s restored from the Trash.', $this->singularLabel),
-                sprintf('%%s %s restored from the Trash.', $this->pluralLabel),
-                $counts['untrashed']
-            ),
-        ];
-
-        return $messages;
+    public function onUpdate(callable $function, int $priority = 10, int $acceptedArgs = 2): void {
+        add_action(sprintf('edit_post_%s', $this->post_type), $function, $priority, $acceptedArgs);
     }
 
     private function registerPostType(): void {
@@ -305,7 +210,9 @@ class CustomPostType {
         if ($typeObject instanceof \WP_Post_Type) {
             add_filter(
                 sprintf('register_%s_post_type_args', $this->post_type_name),
-                static fn (array $args) => wp_parse_args($options, $args)
+                function (array $args) use ($options) {
+                    return wp_parse_args($options, $args);
+                }
             );
         } else {
             add_action('init', function () use ($options): void {
@@ -314,6 +221,20 @@ class CustomPostType {
         }
 
         $this->addTaxonomyFilters();
+    }
+
+    /**
+     * @param array<string,mixed> $options
+     */
+    private function getPostTypeOptions(array $options = []): array {
+        $defaults = [
+            'labels' => app_get_post_type_labels($this->post_type_name),
+            'public' => true,
+            'show_in_rest' => true,
+            'add_archive_page' => true,
+        ];
+
+        return array_replace_recursive($defaults, $options);
     }
 
     private function addTaxonomyFilters(): void {
@@ -374,29 +295,18 @@ class CustomPostType {
         }, 10, 2);
     }
 
-    private function initPostTypeConfig(string $postType): void {
-        $this->post_type_name = $postType;
+    private static function printMetaColumn(int $postId, string $metaKey, \WP_Post $wpPost): void {
+        /** @var null|string $meta */
+        $meta = get_post_meta($postId, $metaKey, true);
 
-        $this->post_type = sanitize_key($this->post_type_name);
-
-        $pluralizer = app_string_pluralizer($this->post_type_name);
-
-        $this->singularLabel = $pluralizer['singular'];
-        $this->pluralLabel = $pluralizer['plural'];
-    }
-
-    /**
-     * @param array<string,mixed> $options
-     */
-    private function getPostTypeOptions(array $options = []): array {
-        $defaults = [
-            'labels' => app_get_post_type_labels($this->post_type_name),
-            'public' => true,
-            'show_in_rest' => true,
-            'add_archive_page' => true,
-        ];
-
-        return array_replace_recursive($defaults, $options);
+        if (!empty($meta)) {
+            printf(
+                '<span title="%s Meta: %s">%s</span>',
+                esc_attr($wpPost->post_title),
+                esc_attr($metaKey),
+                esc_attr($meta)
+            );
+        }
     }
 
     private static function printIconColumn(int $postId, \WP_Post $wpPost): void {
@@ -421,20 +331,6 @@ class CustomPostType {
                 esc_url($link),
                 esc_url(includes_url('images/crystal/default.png')),
                 esc_attr($wpPost->post_title)
-            );
-        }
-    }
-
-    private static function printMetaColumn(int $postId, string $metaKey, \WP_Post $wpPost): void {
-        /** @var null|string $meta */
-        $meta = get_post_meta($postId, $metaKey, true);
-
-        if (!empty($meta)) {
-            printf(
-                '<span title="%s Meta: %s">%s</span>',
-                esc_attr($wpPost->post_title),
-                esc_attr($metaKey),
-                esc_attr($meta)
             );
         }
     }
