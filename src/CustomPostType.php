@@ -42,9 +42,9 @@ class CustomPostType {
              */
             static function (array $wp_columns = []) use ($columns): array {
                 $newColumns = [];
-                $newColumns['cb'] = $wp_columns['cb'];
-                $newColumns['title'] = $wp_columns['title'];
-                $date = $wp_columns['date'];
+                $newColumns['cb'] = (string) $wp_columns['cb'];
+                $newColumns['title'] = (string) $wp_columns['title'];
+                $date = (string) $wp_columns['date'];
                 unset($wp_columns['cb'], $wp_columns['title'], $wp_columns['date']);
 
                 foreach (['cb', 'title', 'date'] as $col) {
@@ -53,6 +53,7 @@ class CustomPostType {
                     }
                 }
 
+                /** @var array<string,string> $merge */
                 $merge = wp_parse_args($wp_columns, $columns);
 
                 foreach ($merge as $key => $value) {
@@ -114,48 +115,7 @@ class CustomPostType {
     }
 
     /**
-     * @param array $options {
-     *
-     * @var string[]      $labels
-     * @var string        $description
-     * @var bool          $public
-     * @var bool          $publicly_queryable
-     * @var bool          $hierarchical
-     * @var bool          $show_ui
-     * @var bool          $show_in_menu
-     * @var bool          $show_in_nav_menus
-     * @var bool          $show_in_rest
-     * @var string        $rest_base
-     * @var string        $rest_namespace
-     * @var string        $rest_controller_class
-     * @var bool          $show_tagcloud
-     * @var bool          $show_in_quick_edit
-     * @var bool          $show_admin_column
-     * @var bool|callable $meta_box_cb
-     * @var callable      $meta_box_sanitize_cb
-     * @var string[]      $capabilities {
-     * @var string        $manage_terms
-     * @var string        $edit_terms
-     * @var string        $delete_terms
-     * @var string        $assign_terms
-     *                    }
-     * @var array|bool    $rewrite {
-     * @var string        $slug
-     * @var bool          $with_front
-     * @var bool          $hierarchical
-     * @var int           $ep_mask
-     *                    }
-     * @var bool|string   $query_var
-     * @var callable      $update_count_callback
-     * @var array|string  $default_term {
-     * @var string        $name
-     * @var string        $slug
-     * @var string        $description
-     *                    }
-     * @var bool          $sort
-     * @var array         $args
-     * @var bool          $_builtin
-     *                    }
+     * @param array<string,mixed> $options
      */
     public function registerTaxonomy(string $taxonomy, array $options = []): void {
         $taxonomy = sanitize_key($taxonomy);

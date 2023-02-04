@@ -7,6 +7,8 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 class PostTypeMessages implements AutoloadInterface {
     public function load(): void {
         add_filter('post_updated_messages', /**
+         * @psalm-param array<string, array<string, string>> $messages
+         *
          * @return array[]
          *
          * @psalm-return array<string, array<int|string, mixed>>
@@ -15,6 +17,9 @@ class PostTypeMessages implements AutoloadInterface {
                 return self::updatedMessages($messages);
             });
         add_filter('bulk_post_updated_messages', /**
+         * @psalm-param array<string, array<string, string>> $messages
+         * @psalm-param array<string, int> $counts
+         *
          * @return string[][]
          *
          * @psalm-return array<string, array<string, string>>
@@ -41,6 +46,7 @@ class PostTypeMessages implements AutoloadInterface {
             return $messages;
         }
 
+        /** @var string $post_type */
         if (!empty($messages[$post_type])) {
             return $messages;
         }
@@ -92,6 +98,7 @@ class PostTypeMessages implements AutoloadInterface {
             return $messages;
         }
 
+        /** @var string $post_type */
         if (!empty($messages[$post_type])) {
             return $messages;
         }
@@ -157,8 +164,8 @@ class PostTypeMessages implements AutoloadInterface {
             return false;
         }
 
-        $singular = empty($labels['singular_name']) ? false : $labels['singular_name'];
-        $plural = empty($labels['all_items']) ? false : $labels['all_items'];
+        $singular = empty($labels['singular_name']) ? false : (string) $labels['singular_name'];
+        $plural = empty($labels['all_items']) ? false : (string) $labels['all_items'];
 
         if (empty($singular)) {
             return false;
