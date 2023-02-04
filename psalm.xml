@@ -18,6 +18,11 @@
             <file name="sample.php"/>
         </ignoreFiles>
     </projectFiles>
+    <enableExtensions>
+        <extension name="apcu"/>
+        <extension name="random"/>
+        <extension name="redis"/>
+    </enableExtensions>
 
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
