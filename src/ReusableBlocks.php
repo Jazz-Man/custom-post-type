@@ -40,13 +40,10 @@ class ReusableBlocks implements AutoloadInterface {
             printf('<code>%s</code>', esc_attr($wpPost->post_name));
         });
 
-        add_action(
-            sprintf('save_post_%s', self::POST_TYPE),
+        $customPostType->onSave(
             static function (int $postId, \WP_Post $wpPost): void {
                 wp_cache_delete(sprintf('%s_%s', $wpPost->post_type, $wpPost->post_name), self::CACHE_GROUP);
-            },
-            10,
-            2
+            }
         );
     }
 }
