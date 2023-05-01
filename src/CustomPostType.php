@@ -5,7 +5,8 @@ namespace JazzMan\Post;
 /**
  * Class CustomPostType.
  */
-class CustomPostType {
+class CustomPostType
+{
     public string $post_type;
 
     public string $post_type_name;
@@ -20,7 +21,8 @@ class CustomPostType {
      *
      * @param array<string,mixed> $options
      */
-    public function __construct(string $postType, array $options = []) {
+    public function __construct(string $postType, array $options = [])
+    {
         $this->post_type_name = $postType;
         $this->post_type = sanitize_key($this->post_type_name);
 
@@ -32,92 +34,96 @@ class CustomPostType {
     /**
      * Add custom columns to the table in the admin part.
      *
-     * @param array<string,string> $columns
+     * @param array<array-key,array<string,mixed>> $columns
      */
-    public function setColumns(array $columns = []): void {
-        add_filter(
-            sprintf('manage_edit-%s_columns', $this->post_type),
-            /**
-             * @psalm-return array{date: mixed,...}
-             */
-            static function (array $wp_columns = []) use ($columns): array {
-                $newColumns = [];
-                $newColumns['cb'] = (string) $wp_columns['cb'];
-                $newColumns['title'] = (string) $wp_columns['title'];
-                $date = (string) $wp_columns['date'];
-                unset($wp_columns['cb'], $wp_columns['title'], $wp_columns['date']);
-
-                foreach (['cb', 'title', 'date'] as $col) {
-                    if (!empty($columns[$col])) {
-                        unset($columns[$col]);
-                    }
-                }
-
-                /** @var array<string,string> $merge */
-                $merge = wp_parse_args($wp_columns, $columns);
-
-                foreach ($merge as $key => $value) {
-                    $newColumns[$key] = $value;
-                }
-
-                $newColumns['date'] = $date;
-
-                return $newColumns;
+    public function setColumns(array $columns): void
+    {
+        foreach ($columns as $column_slug => $data) {
+            if (empty($data['labes'])) {
+                continue;
             }
-        );
+
+            if (empty($data['callback'])) {
+                continue;
+            }
+
+            if (!\is_callable($data['callback'])) {
+                continue;
+            }
+
+            add_filter(
+                sprintf('manage_%s_posts_columns', $this->post_type),
+                function (array $_columns) use ($column_slug, $data) {
+                    $_columns[$column_slug] = $data['labes'];
+
+                    return $_columns;
+                }
+            );
+
+            add_action(
+                sprintf('manage_%s_posts_custom_column', $this->post_type),
+                function (string $column_name, int $post_id) use ($column_slug, $data): void {
+                    global $post;
+
+                    if (!$post instanceof \WP_Post) {
+                        return;
+                    }
+
+                    switch ($column_name) {
+                        case 'post_id':
+                            printf(
+                                '<span title="%1$s ID: %2$s">%2$s</span>',
+                                esc_attr($post->post_title),
+                                esc_attr((string) $post->ID),
+                            );
+
+                            break;
+
+                        case 0 === strpos($column_name, 'meta_'):
+                            self::printMetaColumn($post_id, ltrim($column_name, 'meta_'), $post);
+
+                            break;
+
+                        case 'icon':
+                            self::printIconColumn($post_id, $post);
+
+                            break;
+
+                        default:
+                            if ($column_name !== $column_slug) {
+                                return;
+                            }
+
+                            \call_user_func($data['callback'], $column_name, $post);
+
+                            break;
+                    }
+                },
+                10,
+                2
+            );
+
+            if (!empty($data['sort'])) {
+                add_filter( sprintf('manage_edit-%s_sortable_columns', $this->post_type),
+                    function (array $_columns) use ($column_slug) {
+                        $_columns[$column_slug] = $column_slug;
+
+                        return $_columns;
+                    }
+                );
+
+                if (!empty($data['sort_function']) && \is_callable($data['sort_function'])) {
+                    add_filter('request', $data['sort_function']);
+                }
+            }
+        }
     }
 
-    /**
-     * Fires for each custom column of a specific post type in the Posts list table.
-     * The dynamic portion of the hook name, `$post->post_type`, refers to the post type.
-     *
-     * @see \WP_Posts_List_Table::column_default
-     */
-    public function setPopulateColumns(string $column, callable $callback): void {
-        add_action(
-            sprintf('manage_%s_posts_custom_column', $this->post_type),
-            static function (string $col = '', int $postId = 0) use ($callback): void {
-                global $post;
-
-                if (!$post instanceof \WP_Post) {
-                    return;
-                }
-
-                switch ($col) {
-                    case 'post_id':
-                        printf(
-                            '<span title="%1$s ID: %2$s">%2$s</span>',
-                            esc_attr($post->post_title),
-                            esc_attr((string) $post->ID),
-                        );
-
-                        break;
-
-                    case 0 === strpos($col, 'meta_'):
-                        self::printMetaColumn($postId, ltrim($col, 'meta_'), $post);
-
-                        break;
-
-                    case 'icon':
-                        self::printIconColumn($postId, $post);
-
-                        break;
-
-                    default:
-                        \call_user_func($callback, $col, $post);
-
-                        break;
-                }
-            },
-            10,
-            2
-        );
-    }
-
-    /**
+	/**
      * @param array<string,mixed> $options
      */
-    public function registerTaxonomy(string $taxonomy, array $options = []): void {
+    public function registerTaxonomy(string $taxonomy, array $options = []): void
+    {
         $taxonomy = sanitize_key($taxonomy);
 
         $defaults = [
@@ -150,19 +156,23 @@ class CustomPostType {
         });
     }
 
-    public function setMenuIcon(string $icon = 'dashicons-admin-page'): void {
+    public function setMenuIcon(string $icon = 'dashicons-admin-page'): void
+    {
         $this->postTypeOptions['menu_icon'] = false !== stripos($icon, 'dashicons') ? $icon : 'dashicons-admin-page';
     }
 
-    public function onSave(callable $function, int $priority = 10, int $acceptedArgs = 2): void {
+    public function onSave(callable $function, int $priority = 10, int $acceptedArgs = 2): void
+    {
         add_action(sprintf('save_post_%s', $this->post_type), $function, $priority, $acceptedArgs);
     }
 
-    public function onUpdate(callable $function, int $priority = 10, int $acceptedArgs = 2): void {
+    public function onUpdate(callable $function, int $priority = 10, int $acceptedArgs = 2): void
+    {
         add_action(sprintf('edit_post_%s', $this->post_type), $function, $priority, $acceptedArgs);
     }
 
-    private function registerPostType(): void {
+    private function registerPostType(): void
+    {
         $typeObject = get_post_type_object($this->post_type_name);
 
         $options = $this->getPostTypeOptions($this->postTypeOptions);
@@ -186,7 +196,8 @@ class CustomPostType {
     /**
      * @param array<string,mixed> $options
      */
-    private function getPostTypeOptions(array $options = []): array {
+    private function getPostTypeOptions(array $options = []): array
+    {
         $defaults = [
             'labels' => app_get_post_type_labels($this->post_type_name),
             'public' => true,
@@ -197,7 +208,8 @@ class CustomPostType {
         return array_replace_recursive($defaults, $options);
     }
 
-    private function addTaxonomyFilters(): void {
+    private function addTaxonomyFilters(): void
+    {
         /**
          * @param string $postType the post type slug
          * @param string $which    the location of the extra table nav markup:
@@ -255,7 +267,8 @@ class CustomPostType {
         }, 10, 2);
     }
 
-    private static function printMetaColumn(int $postId, string $metaKey, \WP_Post $wpPost): void {
+    private static function printMetaColumn(int $postId, string $metaKey, \WP_Post $wpPost): void
+    {
         /** @var null|string $meta */
         $meta = get_post_meta($postId, $metaKey, true);
 
@@ -269,7 +282,8 @@ class CustomPostType {
         }
     }
 
-    private static function printIconColumn(int $postId, \WP_Post $wpPost): void {
+    private static function printIconColumn(int $postId, \WP_Post $wpPost): void
+    {
         $link = sprintf('post.php?post=%d&action=edit', $wpPost->ID);
 
         if (has_post_thumbnail($postId)) {
