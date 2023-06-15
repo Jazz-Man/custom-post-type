@@ -25,7 +25,7 @@
     "require-dev": {
         "jazzman/php-cs-fixer-rules": "^0.1.4",
         "phpstan/extension-installer": "^1.2",
-        "rector/rector": "^0.15.10",
+        "rector/rector": "^0.17.1",
         "roave/security-advisories": "@dev",
         "roots/wordpress": "^6.1",
         "szepeviktor/phpstan-wordpress": "^1.1"
