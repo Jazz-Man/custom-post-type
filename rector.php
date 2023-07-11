@@ -1,36 +1,34 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types=1 );
 
 use Rector\Config\RectorConfig;
-use Rector\Core\ValueObject\PhpVersion;
-use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 
-return static function (RectorConfig $config): void {
-    // here we can define, what sets of rules will be applied
-    // tip: use "SetList" class to autocomplete sets
+return static function ( RectorConfig $config ): void {
 
-    $config->sets([
+    $config->sets( [
         SetList::CODE_QUALITY,
-        SetList::PHP_74,
+        SetList::CODING_STYLE,
         SetList::TYPE_DECLARATION,
         SetList::EARLY_RETURN,
-        SetList::NAMING,
-        SetList::CODING_STYLE,
-        SetList::DEAD_CODE,
-        LevelSetList::UP_TO_PHP_74,
-    ]);
-    $config->fileExtensions(['php']);
-    $config->phpVersion(PhpVersion::PHP_74);
+        SetList::INSTANCEOF,
+        LevelSetList::UP_TO_PHP_82,
+    ] );
+    $config->fileExtensions( ['php'] );
+
     $config->importNames();
-    $config->importShortClasses(false);
-    $config->parallel();
-    $config->cacheDirectory(__DIR__.'/cache/rector');
-    $config->paths([
-        __DIR__,
-    ]);
+    $config->removeUnusedImports();
+    $config->importShortClasses( false );
+
+    $config->cacheDirectory( __DIR__.'/cache/rector' );
+    $config->phpstanConfig( __DIR__.'/phpstan-rector.neon' );
+
+    $config->paths( [
+        __DIR__.'/custom-post-type.php',
+        __DIR__.'/src',
+    ] );
 
     $config->skip(
         [
@@ -40,7 +38,7 @@ return static function (RectorConfig $config): void {
             __DIR__.'/cache',
             __DIR__.'/rector.php',
             __DIR__.'/.php-cs-fixer.php',
-	        ClosureToArrowFunctionRector::class
+            __DIR__.'/sample.php',
         ]
     );
 };
