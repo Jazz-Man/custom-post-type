@@ -1,5 +1,4 @@
 includes:
-    - phar://phpstan.phar/conf/bleedingEdge.neon
     - %currentWorkingDirectory%/phpstan-baseline.neon
 
 parameters:
@@ -14,3 +13,4 @@ parameters:
 	    - .php-cs-fixer.php
 	paths:
 	    - src
+	    - custom-post-type.php
