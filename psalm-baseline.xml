@@ -1,29 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.9.0@8b9ad1eb9e8b7d3101f949291da2b9f7767cd163">
+<files psalm-version="5.12.0@f90118cdeacd0088e7215e64c0c99ceca819e176">
   <file src="src/ArchivePostType.php">
-    <ArgumentTypeCoercion>
-      <code>$postarr</code>
-    </ArgumentTypeCoercion>
     <InvalidArgument>
-      <code><![CDATA[[
-                    'description' => 'Archive posts associated with each post type.',
-                    'public' => false,
-                    'show_in_nav_menus' => false,
-                    'show_in_admin_bar' => false,
-                    'exclude_from_search' => true,
-                    'show_ui' => true,
-                    'show_in_menu' => true,
-                    'can_export' => true,
-                    'delete_with_user' => false,
-                    'hierarchical' => false,
-                    'has_archive' => false,
-                    'menu_icon' => 'dashicons-media-text',
-                    'query_var' => 'hdptap_cpt_archive',
-                    'menu_position' => 26,
-                    'show_in_rest' => true,
-                    'labels' => $labels,
-                    'supports' => $supports,
-                ]]]></code>
       <code>false</code>
     </InvalidArgument>
     <UndefinedPropertyFetch>
