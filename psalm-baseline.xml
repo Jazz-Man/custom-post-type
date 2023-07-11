@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.5.0@b63061a27f2683ec0f3509012bb22daab3b65b61">
+<files psalm-version="5.9.0@8b9ad1eb9e8b7d3101f949291da2b9f7767cd163">
   <file src="src/ArchivePostType.php">
     <ArgumentTypeCoercion>
       <code>$postarr</code>
     </ArgumentTypeCoercion>
     <InvalidArgument>
-      <code>[
-                    'description' =&gt; 'Archive posts associated with each post type.',
-                    'public' =&gt; false,
-                    'show_in_nav_menus' =&gt; false,
-                    'show_in_admin_bar' =&gt; false,
-                    'exclude_from_search' =&gt; true,
-                    'show_ui' =&gt; true,
-                    'show_in_menu' =&gt; true,
-                    'can_export' =&gt; true,
-                    'delete_with_user' =&gt; false,
-                    'hierarchical' =&gt; false,
-                    'has_archive' =&gt; false,
-                    'menu_icon' =&gt; 'dashicons-media-text',
-                    'query_var' =&gt; 'hdptap_cpt_archive',
-                    'menu_position' =&gt; 26,
-                    'show_in_rest' =&gt; true,
-                    'labels' =&gt; $labels,
-                    'supports' =&gt; $supports,
-                ]</code>
+      <code><![CDATA[[
+                    'description' => 'Archive posts associated with each post type.',
+                    'public' => false,
+                    'show_in_nav_menus' => false,
+                    'show_in_admin_bar' => false,
+                    'exclude_from_search' => true,
+                    'show_ui' => true,
+                    'show_in_menu' => true,
+                    'can_export' => true,
+                    'delete_with_user' => false,
+                    'hierarchical' => false,
+                    'has_archive' => false,
+                    'menu_icon' => 'dashicons-media-text',
+                    'query_var' => 'hdptap_cpt_archive',
+                    'menu_position' => 26,
+                    'show_in_rest' => true,
+                    'labels' => $labels,
+                    'supports' => $supports,
+                ]]]></code>
       <code>false</code>
     </InvalidArgument>
     <UndefinedPropertyFetch>
-      <code>$object-&gt;add_archive_page</code>
-      <code>$wpPostType-&gt;add_archive_page</code>
-      <code>$wpPostType-&gt;add_archive_page</code>
+      <code><![CDATA[$object->add_archive_page]]></code>
+      <code><![CDATA[$wpPostType->add_archive_page]]></code>
+      <code><![CDATA[$wpPostType->add_archive_page]]></code>
     </UndefinedPropertyFetch>
   </file>
   <file src="src/CustomPostType.php">
-    <ArgumentTypeCoercion>
-      <code>$options</code>
-    </ArgumentTypeCoercion>
-    <NoValue>
-      <code>$col</code>
-    </NoValue>
+    <NoValue/>
   </file>
 </files>
