@@ -14,6 +14,7 @@ return static function ( RectorConfig $config ): void {
         SetList::TYPE_DECLARATION,
         SetList::EARLY_RETURN,
         SetList::INSTANCEOF,
+        SetList::PRIVATIZATION,
         LevelSetList::UP_TO_PHP_82,
     ] );
     $config->fileExtensions( ['php'] );
