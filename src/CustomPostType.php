@@ -9,31 +9,24 @@ use WP_Taxonomy;
 /**
  * Class CustomPostType.
  */
-class CustomPostType {
+final class CustomPostType {
 
     public string $post_type;
-
-    public string $post_type_name;
-
-    /**
-     * @var array<string,mixed>
-     */
-    private array $postTypeOptions = [];
 
     /**
      * CustomPostType constructor.
      *
-     * @param array<string,mixed> $options
+     * @param array<string, mixed> $postTypeOptions
      */
-    public function __construct( string $postType, array $options = [] ) {
-        $this->post_type_name = $postType;
+    public function __construct( public string $post_type_name, private array $postTypeOptions = [] ) {
         $this->post_type = sanitize_key( $this->post_type_name );
-
-        $this->postTypeOptions = $options;
 
         $this->registerPostType();
     }
 
+    /**
+     * @deprecated
+     */
     public function setColumns( array $columns ): void {
         foreach ( $columns as $column_slug => $data ) {
             if ( empty( $data['labes'] ) ) {
@@ -50,7 +43,7 @@ class CustomPostType {
 
             add_filter(
                 sprintf( 'manage_%s_posts_columns', $this->post_type ),
-                function ( array $_columns ) use ( $column_slug, $data ) {
+                static function ( array $_columns ) use ( $column_slug, $data ): array {
                     $_columns[$column_slug] = $data['labes'];
 
                     return $_columns;
@@ -59,7 +52,7 @@ class CustomPostType {
 
             add_action(
                 sprintf( 'manage_%s_posts_custom_column', $this->post_type ),
-                function ( string $column_name, int $post_id ) use ( $column_slug, $data ): void {
+                static function ( string $column_name, int $post_id ) use ( $column_slug, $data ): void {
                     global $post;
 
                     if ( ! $post instanceof WP_Post ) {
@@ -103,7 +96,7 @@ class CustomPostType {
             if ( ! empty( $data['sort'] ) ) {
                 add_filter(
                     sprintf( 'manage_edit-%s_sortable_columns', $this->post_type ),
-                    function ( array $_columns ) use ( $column_slug ) {
+                    static function ( array $_columns ) use ( $column_slug ): array {
                         $_columns[$column_slug] = $column_slug;
 
                         return $_columns;
@@ -117,6 +110,9 @@ class CustomPostType {
         }
     }
 
+    /**
+     * @param array<string,mixed> $options
+     */
     public function registerTaxonomy( string $taxonomy, array $options = [] ): void {
         $taxonomy = sanitize_key( $taxonomy );
 
@@ -135,7 +131,7 @@ class CustomPostType {
         if ( $taxonomyObject instanceof WP_Taxonomy ) {
             add_filter(
                 sprintf( 'register_%s_taxonomy_args', $taxonomy ),
-                fn ( array $args ) => wp_parse_args( $options, $args )
+                static fn ( array $args ): array => wp_parse_args( $options, $args )
             );
         } else {
             add_action( 'init', function () use ( $taxonomy, $options ): void {
@@ -168,7 +164,7 @@ class CustomPostType {
         if ( $typeObject instanceof WP_Post_Type ) {
             add_filter(
                 sprintf( 'register_%s_post_type_args', $this->post_type_name ),
-                fn ( array $args ) => wp_parse_args( $options, $args )
+                static fn ( array $args ): array => wp_parse_args( $options, $args )
             );
         } else {
             add_action( 'init', function () use ( $options ): void {
@@ -179,6 +175,11 @@ class CustomPostType {
         $this->addTaxonomyFilters();
     }
 
+    /**
+     * @param array<string,mixed> $options
+     *
+     * @return array<string,mixed>
+     */
     private function getPostTypeOptions( array $options = [] ): array {
         $defaults = [
             'labels' => app_get_post_type_labels( $this->post_type_name ),
@@ -248,6 +249,9 @@ class CustomPostType {
         }, 10, 2 );
     }
 
+    /**
+     * @deprecated
+     */
     private static function printMetaColumn( int $postId, string $metaKey, WP_Post $wpPost ): void {
         /** @var string|null $meta */
         $meta = get_post_meta( $postId, $metaKey, true );
@@ -262,6 +266,9 @@ class CustomPostType {
         }
     }
 
+    /**
+     * @deprecated
+     */
     private static function printIconColumn( int $postId, WP_Post $wpPost ): void {
         $link = sprintf( 'post.php?post=%d&action=edit', $wpPost->ID );
 

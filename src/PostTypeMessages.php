@@ -6,7 +6,7 @@ use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Post;
 use WP_Post_Type;
 
-class PostTypeMessages implements AutoloadInterface {
+final class PostTypeMessages implements AutoloadInterface {
 
     public function load(): void {
         add_filter(
@@ -39,11 +39,11 @@ class PostTypeMessages implements AutoloadInterface {
         }
 
         /** @var string $post_type */
-        if ( ! empty( $messages[$post_type] ) ) {
+        if ( ! empty( $messages[ $post_type ] ) ) {
             return $messages;
         }
 
-        $messages[$post_type] = [
+        $messages[ $post_type ] = [
             'updated' => _n(
                 sprintf( '%%s %s updated.', $labels['singular'] ),
                 sprintf( '%%s %s updated.', $labels['plural'] ),
@@ -91,7 +91,7 @@ class PostTypeMessages implements AutoloadInterface {
         }
 
         /** @var string $post_type */
-        if ( ! empty( $messages[$post_type] ) ) {
+        if ( ! empty( $messages[ $post_type ] ) ) {
             return $messages;
         }
 
@@ -113,7 +113,7 @@ class PostTypeMessages implements AutoloadInterface {
             }
         }
 
-        $messages[$post_type] = [
+        $messages[ $post_type ] = [
             0 => '',
             1 => sprintf( '%s updated.', $labels['singular'] ),
             2 => 'Custom field updated.',

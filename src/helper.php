@@ -2,11 +2,12 @@
 
 use JazzMan\Pluralizer\Pluralizer;
 use JazzMan\Post\ReusableBlocks;
-use JetBrains\PhpStorm\ArrayShape;
 
 if ( ! function_exists( 'app_get_post_type_labels' ) ) {
     /**
-     * @param array<string,string> $options
+     * @param array<string,mixed> $options
+     *
+     * @return array<string,mixed>
      */
     function app_get_post_type_labels( string $post_type, array $options = [] ): array {
         $pluralizer = app_string_pluralizer( $post_type );
@@ -43,6 +44,8 @@ if ( ! function_exists( 'app_get_post_type_labels' ) ) {
 if ( ! function_exists( 'app_get_taxonomy_labels' ) ) {
     /**
      * @param array<string,string> $options
+     *
+     * @return array<string,mixed>
      */
     function app_get_taxonomy_labels( string $taxonomy, array $options = [] ): array {
         $pluralizer = app_string_pluralizer( $taxonomy );
@@ -95,12 +98,9 @@ if ( ! function_exists( 'app_get_human_friendly' ) ) {
 }
 
 if ( ! function_exists( 'app_string_pluralizer' ) ) {
-	/**
-	 * @param  string  $name
-	 *
-	 * @return array{singular:string, plural:string}
-	 */
-    #[ArrayShape( [ 'singular' => 'string', 'plural' => 'string' ] )]
+    /**
+     * @return array{singular:string, plural:string}
+     */
     function app_string_pluralizer( string $name ): array {
         $humanFriendly = app_get_human_friendly( $name );
 
@@ -112,9 +112,6 @@ if ( ! function_exists( 'app_string_pluralizer' ) ) {
 }
 
 if ( ! function_exists( 'app_get_wp_block' ) ) {
-    /**
-     * @return false|\WP_Post
-     */
     function app_get_wp_block( string $postName ): bool|WP_Post {
         $cacheKey = sprintf( 'wp_block_%s', $postName );
 

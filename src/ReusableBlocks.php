@@ -5,7 +5,7 @@ namespace JazzMan\Post;
 use JazzMan\AutoloadInterface\AutoloadInterface;
 use WP_Post;
 
-class ReusableBlocks implements AutoloadInterface {
+final class ReusableBlocks implements AutoloadInterface {
 
     /**
      * @var string
@@ -32,15 +32,6 @@ class ReusableBlocks implements AutoloadInterface {
             'public' => false,
             'show_ui' => true,
         ] );
-
-        //        $customPostType->setColumns([
-        //            'post_id' => 'Block ID',
-        //            'post_name' => 'Block Slug',
-        //        ]);
-
-        //        $customPostType->setPopulateColumns('post_name', static function (string $column, \WP_Post $wpPost): void {
-        //            printf('<code>%s</code>', esc_attr($wpPost->post_name));
-        //        });
 
         $block->onSave(
             static function ( int $postId, WP_Post $wpPost ): void {
