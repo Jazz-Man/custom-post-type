@@ -11,11 +11,6 @@ parameters:
 			path: src/ArchivePostType.php
 
 		-
-			message: "#^Cannot access offset 'thumbnail' on mixed\\.$#"
-			count: 1
-			path: src/CustomPostType.php
-
-		-
 			message: "#^Parameter \\#1 \\$args of function wp_dropdown_categories expects array\\{show_option_all\\?\\: string, show_option_none\\?\\: string, option_none_value\\?\\: string, orderby\\?\\: string, pad_counts\\?\\: bool, show_count\\?\\: bool\\|int, echo\\?\\: bool\\|int, hierarchical\\?\\: bool\\|int, \\.\\.\\.\\}, array\\{hide_empty\\: 0, hierarchical\\: 1, show_count\\: 0, orderby\\: 'name', name\\: non\\-falsy\\-string, value_field\\: 'slug', taxonomy\\: string, selected\\: mixed, \\.\\.\\.\\} given\\.$#"
 			count: 1
 			path: src/CustomPostType.php
@@ -26,13 +21,8 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string given\\.$#"
-			count: 1
-			path: src/PostTypeMeta.php
-
-		-
 			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string\\|null given\\.$#"
-			count: 1
+			count: 2
 			path: src/PostTypeMeta.php
 
 		-
