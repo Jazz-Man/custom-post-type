@@ -207,6 +207,7 @@ final class PostTypeMeta {
         if ( ! \is_callable( $this->quickEditCallback ) ) {
             return;
         }
+
         $this->quickEdit();
     }
 
@@ -348,6 +349,7 @@ final class PostTypeMeta {
             if ( ! \is_callable( $this->sortCallback ) ) {
                 return;
             }
+
             add_filter( 'request', $this->sortCallback );
         }
     }
