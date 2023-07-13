@@ -66,7 +66,7 @@ final class PostTypeMeta {
     private $columnCallback;
 
     /**
-     * @var string|callable|null;
+     * @var string|callable|null
      */
     private $sortCallback;
 
@@ -192,7 +192,7 @@ final class PostTypeMeta {
                     if ( \is_callable( $this->capability ) ) {
                         $default['auth_callback'] = $this->capability;
                     } else {
-                        $default['auth_callback'] = fn ( $false, $meta_key, $postID, $user_id, $cap, $caps ): bool => current_user_can( $this->capability );
+                        $default['auth_callback'] = fn ( $false, $metaKey, $postID, $userId, $cap, $caps ): bool => current_user_can( $this->capability );
                     }
                 }
 
@@ -318,18 +318,18 @@ final class PostTypeMeta {
 
         add_action(
             sprintf( 'manage_%s_posts_custom_column', $this->postType ),
-            function ( string $column_name ): void {
+            function ( string $columnName ): void {
                 global $post;
 
                 if ( ! $post instanceof WP_Post ) {
                     return;
                 }
 
-                if ( $column_name !== $this->metaKey ) {
+                if ( $columnName !== $this->metaKey ) {
                     return;
                 }
 
-                \call_user_func( $this->columnCallback, $column_name, $post );
+                \call_user_func( $this->columnCallback, $columnName, $post );
             }
         );
 

@@ -11,17 +11,21 @@ use WP_Taxonomy;
  */
 final class CustomPostType {
 
-    public string $post_type;
+    private readonly string $postType;
 
     /**
      * CustomPostType constructor.
      *
      * @param array<string, mixed> $postTypeOptions
      */
-    public function __construct( public string $post_type_name, private array $postTypeOptions = [] ) {
-        $this->post_type = sanitize_key( $this->post_type_name );
+    public function __construct( public string $postTypeName, private array $postTypeOptions = [] ) {
+        $this->postType = sanitize_key( $this->postTypeName );
 
         $this->registerPostType();
+    }
+
+    public function getPostType(): string {
+        return $this->postType;
     }
 
     /**
@@ -42,7 +46,7 @@ final class CustomPostType {
             }
 
             add_filter(
-                sprintf( 'manage_%s_posts_columns', $this->post_type ),
+                sprintf( 'manage_%s_posts_columns', $this->postType ),
                 static function ( array $_columns ) use ( $column_slug, $data ): array {
                     $_columns[$column_slug] = $data['labes'];
 
@@ -51,7 +55,7 @@ final class CustomPostType {
             );
 
             add_action(
-                sprintf( 'manage_%s_posts_custom_column', $this->post_type ),
+                sprintf( 'manage_%s_posts_custom_column', $this->postType ),
                 static function ( string $column_name, int $post_id ) use ( $column_slug, $data ): void {
                     global $post;
 
@@ -95,7 +99,7 @@ final class CustomPostType {
 
             if ( ! empty( $data['sort'] ) ) {
                 add_filter(
-                    sprintf( 'manage_edit-%s_sortable_columns', $this->post_type ),
+                    sprintf( 'manage_edit-%s_sortable_columns', $this->postType ),
                     static function ( array $_columns ) use ( $column_slug ): array {
                         $_columns[$column_slug] = $column_slug;
 
@@ -135,12 +139,12 @@ final class CustomPostType {
             );
         } else {
             add_action( 'init', function () use ( $taxonomy, $options ): void {
-                register_taxonomy( $taxonomy, $this->post_type, $options );
+                register_taxonomy( $taxonomy, $this->postType, $options );
             } );
         }
 
         add_action( 'init', function () use ( $taxonomy ): void {
-            register_taxonomy_for_object_type( $taxonomy, $this->post_type );
+            register_taxonomy_for_object_type( $taxonomy, $this->postType );
         } );
     }
 
@@ -149,30 +153,71 @@ final class CustomPostType {
     }
 
     public function onSave( callable $function, int $priority = 10, int $acceptedArgs = 2 ): void {
-        add_action( sprintf( 'save_post_%s', $this->post_type ), $function, $priority, $acceptedArgs );
+        add_action( sprintf( 'save_post_%s', $this->postType ), $function, $priority, $acceptedArgs );
     }
 
     public function onUpdate( callable $function, int $priority = 10, int $acceptedArgs = 2 ): void {
-        add_action( sprintf( 'edit_post_%s', $this->post_type ), $function, $priority, $acceptedArgs );
+        add_action( sprintf( 'edit_post_%s', $this->postType ), $function, $priority, $acceptedArgs );
+    }
+
+    public function onDeletePost( callable $function, int $priority = 10 ): void {
+
+        $this->deleteActions( 'delete_post', $function, $priority );
+    }
+
+    public function onDeletedPost( callable $function, int $priority = 10 ): void {
+
+        $this->deleteActions( 'deleted_post', $function, $priority );
+    }
+
+    public function onAfterDeletePost( callable $function, int $priority = 10 ): void {
+
+        $this->deleteActions( 'after_delete_post', $function, $priority );
+    }
+
+    private function deleteActions( string $hook, callable $function, int $priority = 10 ): void {
+        add_action( $hook, function ( int $postid, WP_Post $post ) use ( $function ): void {
+            if ( $post->post_type !== $this->postType ) {
+                return;
+            }
+
+            \call_user_func( $function, $postid, $post );
+        }, $priority, 2 );
     }
 
     private function registerPostType(): void {
-        $typeObject = get_post_type_object( $this->post_type_name );
+        $typeObject = get_post_type_object( $this->postTypeName );
 
         $options = $this->getPostTypeOptions( $this->postTypeOptions );
 
         if ( $typeObject instanceof WP_Post_Type ) {
             add_filter(
-                sprintf( 'register_%s_post_type_args', $this->post_type_name ),
+                sprintf( 'register_%s_post_type_args', $this->postTypeName ),
                 static fn ( array $args ): array => wp_parse_args( $options, $args )
             );
         } else {
             add_action( 'init', function () use ( $options ): void {
-                register_post_type( $this->post_type_name, $options );
+                register_post_type( $this->postTypeName, $options );
             } );
         }
 
+        if ( ! empty( $options['supports'] ) && ! empty( $options['supports']['thumbnail'] ) ) {
+            $this->registerPostMeta();
+        }
+
         $this->addTaxonomyFilters();
+    }
+
+    private function registerPostMeta(): void {
+        $meta = ( new PostTypeMeta( $this->postType, 'thumbnail' ) )
+            ->setMataDescription( 'Featured image' )
+            ->setMataLabel( 'Featured image' )
+            ->setColumnCallback(
+                static fn ( string $column, WP_Post $post ) => PostTypeMeta::columnContent( $column, $post )
+            )
+        ;
+
+        $meta->run();
     }
 
     /**
@@ -182,7 +227,7 @@ final class CustomPostType {
      */
     private function getPostTypeOptions( array $options = [] ): array {
         $defaults = [
-            'labels' => app_get_post_type_labels( $this->post_type_name ),
+            'labels' => app_get_post_type_labels( $this->postTypeName ),
             'public' => true,
             'show_in_rest' => true,
             'add_archive_page' => true,
@@ -203,12 +248,12 @@ final class CustomPostType {
                 return;
             }
 
-            if ( $postType !== $this->post_type ) {
+            if ( $postType !== $this->postType ) {
                 return;
             }
 
             /** @var array<string,WP_Taxonomy> $taxonomies */
-            $taxonomies = get_object_taxonomies( $this->post_type, 'objects' );
+            $taxonomies = get_object_taxonomies( $this->postType, 'objects' );
 
             if ( [] === $taxonomies ) {
                 return;
