@@ -138,8 +138,7 @@ final class ArchivePostType implements AutoloadInterface {
         $postId = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
         // if this is a post edit screen for the archive page post type.
         if ( ! empty( $postId ) && 'post' === $current_screen->base && self::ARCHIVE_POST_TYPE === $current_screen->post_type ) {
-            /** @var WP_Post|null $post */
-            $post = get_post( $postId );
+			$post = get_post( $postId );
 
             // if we have an archive post type returned.
             if ( $post instanceof WP_Post ) {

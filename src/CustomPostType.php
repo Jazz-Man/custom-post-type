@@ -75,17 +75,14 @@ final class CustomPostType {
     }
 
     public function onDeletePost( callable $function, int $priority = 10 ): void {
-
         $this->deleteActions( 'delete_post', $function, $priority );
     }
 
     public function onDeletedPost( callable $function, int $priority = 10 ): void {
-
         $this->deleteActions( 'deleted_post', $function, $priority );
     }
 
     public function onAfterDeletePost( callable $function, int $priority = 10 ): void {
-
         $this->deleteActions( 'after_delete_post', $function, $priority );
     }
 
@@ -166,7 +163,6 @@ final class CustomPostType {
                 return;
             }
 
-            /** @var array<string,WP_Taxonomy> $taxonomies */
             $taxonomies = get_object_taxonomies( $this->postType, 'objects' );
 
             if ( [] === $taxonomies ) {
