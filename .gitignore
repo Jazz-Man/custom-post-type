@@ -30,4 +30,3 @@ composer.phar
 /.php[_|-]cs*.cache
 /cache/
 !.github/
-phpstan.neon

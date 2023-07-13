@@ -15,10 +15,10 @@ use JazzMan\Post\ArchivePostType;
 use JazzMan\Post\PostTypeMessages;
 use JazzMan\Post\ReusableBlocks;
 
-if (function_exists('app_autoload_classes')) {
-    app_autoload_classes([
+if ( function_exists( 'app_autoload_classes' ) ) {
+    app_autoload_classes( [
         ArchivePostType::class,
         ReusableBlocks::class,
         PostTypeMessages::class,
-    ]);
+    ] );
 }
