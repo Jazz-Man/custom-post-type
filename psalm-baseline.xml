@@ -4,13 +4,89 @@
     <InvalidArgument>
       <code>false</code>
     </InvalidArgument>
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[[
+                'description' => 'Archive posts associated with each post type.',
+                'public' => false,
+                'show_in_nav_menus' => false,
+                'show_in_admin_bar' => false,
+                'exclude_from_search' => true,
+                'show_ui' => true,
+                'show_in_menu' => true,
+                'can_export' => true,
+                'delete_with_user' => false,
+                'hierarchical' => false,
+                'has_archive' => false,
+                'menu_icon' => 'dashicons-media-text',
+                'query_var' => 'hdptap_cpt_archive',
+                'menu_position' => 26,
+                'show_in_rest' => true,
+                'labels' => $labels,
+                'supports' => $supports,
+            ]]]></code>
+      <code><![CDATA[[
+            'post_type' => self::ARCHIVE_POST_TYPE,
+            'post_title' => $wpPostType->labels->name,
+            'post_status' => 'publish',
+            'post_name' => $postType,
+        ]]]></code>
+    </MixedArgumentTypeCoercion>
     <UndefinedPropertyFetch>
       <code><![CDATA[$object->add_archive_page]]></code>
-      <code><![CDATA[$wpPostType->add_archive_page]]></code>
-      <code><![CDATA[$wpPostType->add_archive_page]]></code>
     </UndefinedPropertyFetch>
   </file>
   <file src="src/CustomPostType.php">
-    <NoValue/>
+    <ArgumentTypeCoercion>
+      <code>$options</code>
+    </ArgumentTypeCoercion>
+    <MixedArgumentTypeCoercion>
+      <code>$options</code>
+    </MixedArgumentTypeCoercion>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[array<string,mixed>]]></code>
+      <code>array_replace_recursive( $defaults, $options )</code>
+    </MixedReturnTypeCoercion>
+  </file>
+  <file src="src/PostTypeMessages.php">
+    <MixedArgumentTypeCoercion>
+      <code>$counts</code>
+      <code>$messages</code>
+      <code>$messages</code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="src/PostTypeMeta.php">
+    <InvalidArgument>
+      <code><![CDATA[[
+                'alt' => $post->post_title,
+            ]]]></code>
+    </InvalidArgument>
+    <MixedAssignment>
+      <code><![CDATA[$default['default']]]></code>
+    </MixedAssignment>
+    <NoValue>
+      <code>$column</code>
+    </NoValue>
+    <PossiblyNullFunctionCall>
+      <code><![CDATA[\call_user_func( $this->columnCallback, $columnName, $post )]]></code>
+    </PossiblyNullFunctionCall>
+    <PropertyNotSetInConstructor>
+      <code>$quickEditCallback</code>
+    </PropertyNotSetInConstructor>
+    <UnusedClosureParam>
+      <code>$allowed</code>
+      <code>$cap</code>
+      <code>$caps</code>
+      <code>$metaKey</code>
+      <code>$postID</code>
+      <code>$userId</code>
+    </UnusedClosureParam>
+  </file>
+  <file src="src/helper.php">
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[array<string,mixed>]]></code>
+      <code><![CDATA[array<string,mixed>]]></code>
+      <code>wp_parse_args( $options, $labels )</code>
+      <code>wp_parse_args( $options, $labels )</code>
+    </MixedReturnTypeCoercion>
   </file>
 </files>

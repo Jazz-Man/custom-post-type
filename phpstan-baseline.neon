@@ -1,8 +1,8 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to function property_exists\\(\\) with WP_Post_Type and 'add_archive_page' will always evaluate to false\\.$#"
-			count: 3
+			message: "#^Parameter \\#2 \\$args of function register_post_type expects array\\{label\\?\\: string, labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, hierarchical\\?\\: bool, exclude_from_search\\?\\: bool, publicly_queryable\\?\\: bool, show_ui\\?\\: bool, \\.\\.\\.\\}, array\\{description\\: 'Archive posts…', public\\: false, show_in_nav_menus\\: false, show_in_admin_bar\\: false, exclude_from_search\\: true, show_ui\\: true, show_in_menu\\: true, can_export\\: true, \\.\\.\\.\\} given\\.$#"
+			count: 1
 			path: src/ArchivePostType.php
 
 		-
@@ -11,7 +11,7 @@ parameters:
 			path: src/ArchivePostType.php
 
 		-
-			message: "#^Method JazzMan\\\\Post\\\\CustomPostType\\:\\:getPostTypeOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Cannot access offset 'thumbnail' on mixed\\.$#"
 			count: 1
 			path: src/CustomPostType.php
 
@@ -21,11 +21,21 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Function app_get_post_type_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Parameter \\#2 \\$args of function register_post_type expects array\\{label\\?\\: string, labels\\?\\: array\\<string\\>, description\\?\\: string, public\\?\\: bool, hierarchical\\?\\: bool, exclude_from_search\\?\\: bool, publicly_queryable\\?\\: bool, show_ui\\?\\: bool, \\.\\.\\.\\}, array\\<string, mixed\\> given\\.$#"
 			count: 1
-			path: src/helper.php
+			path: src/CustomPostType.php
 
 		-
-			message: "#^Function app_get_taxonomy_labels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string given\\.$#"
 			count: 1
-			path: src/helper.php
+			path: src/PostTypeMeta.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string\\|null given\\.$#"
+			count: 1
+			path: src/PostTypeMeta.php
+
+		-
+			message: "#^Parameter \\#3 \\$icon of function wp_get_attachment_image expects bool, array\\<string, string\\> given\\.$#"
+			count: 1
+			path: src/PostTypeMeta.php
