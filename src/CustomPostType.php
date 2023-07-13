@@ -112,7 +112,7 @@ final class CustomPostType {
             } );
         }
 
-        if ( ! empty( $options['supports'] ) && ! empty( $options['supports']['thumbnail'] ) ) {
+        if ( ! empty( $options['supports'] ) && \in_array( 'thumbnail', (array) $options['supports'], true ) ) {
             $this->registerPostMeta();
         }
 
@@ -121,8 +121,8 @@ final class CustomPostType {
 
     private function registerPostMeta(): void {
         $meta = ( new PostTypeMeta( $this->postType, 'thumbnail' ) )
-            ->setMataDescription( 'Featured image' )
-            ->setMataLabel( 'Featured image' )
+            ->setMetaDescription( 'Featured image' )
+            ->setMetaLabel( 'Featured image' )
             ->setColumnCallback(
                 static fn ( string $column, WP_Post $post ) => PostTypeMeta::columnContent( $column, $post )
             )

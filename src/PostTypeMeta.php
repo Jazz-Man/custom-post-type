@@ -47,16 +47,16 @@ final class PostTypeMeta {
      */
     private const AFTER = '</div></div></fieldset>';
 
-    private ?string $mataLabel = null;
+    private ?string $metaLabel = null;
 
-    private ?string $mataDescription = null;
+    private ?string $metaDescription = null;
 
     private bool $_showInRest = false;
 
     private bool $_isSortColumn = false;
 
     /**
-     * @var callable|string
+     * @var callable|string|null
      */
     private $quickEditCallback;
 
@@ -70,7 +70,7 @@ final class PostTypeMeta {
      */
     private $sortCallback;
 
-    private mixed $defaultValue;
+    private mixed $defaultValue = null;
 
     private bool $_isSingle = false;
 
@@ -133,14 +133,14 @@ final class PostTypeMeta {
         return $this;
     }
 
-    public function setMataDescription( string $mataDescription ): self {
-        $this->mataDescription = $mataDescription;
+    public function setMetaDescription( string $metaDescription ): self {
+        $this->metaDescription = $metaDescription;
 
         return $this;
     }
 
-    public function setMataLabel( string $mataLabel ): self {
-        $this->mataLabel = $mataLabel;
+    public function setMetaLabel( string $metaLabel ): self {
+        $this->metaLabel = $metaLabel;
 
         return $this;
     }
@@ -176,15 +176,15 @@ final class PostTypeMeta {
                     'show_in_rest' => $this->_showInRest,
                 ];
 
-                if ( ! empty( $this->mataDescription ) ) {
-                    $default['description'] = $this->mataDescription;
+                if ( ! empty( $this->metaDescription ) ) {
+                    $default['description'] = $this->metaDescription;
                 }
 
                 if ( ! empty( $this->sanitizeCallback ) && \is_callable( $this->sanitizeCallback ) ) {
                     $default['sanitize_callback'] = $this->sanitizeCallback;
                 }
 
-                if ( null !== $this->defaultValue ) {
+                if ( isset( $this->defaultValue ) ) {
                     $default['default'] = $this->defaultValue;
                 }
 
@@ -199,14 +199,6 @@ final class PostTypeMeta {
         );
 
         $this->addMetaColumn();
-
-        if ( empty( $this->quickEditCallback ) ) {
-            return;
-        }
-
-        if ( ! \is_callable( $this->quickEditCallback ) ) {
-            return;
-        }
 
         $this->quickEdit();
     }
@@ -294,7 +286,7 @@ final class PostTypeMeta {
     }
 
     private function addMetaColumn(): void {
-        if ( empty( $this->mataLabel ) ) {
+        if ( empty( $this->metaLabel ) ) {
             return;
         }
 
@@ -309,7 +301,7 @@ final class PostTypeMeta {
         add_filter(
             sprintf( 'manage_%s_posts_columns', $this->postType ),
             function ( array $_columns ): array {
-                $_columns[ $this->metaKey ] = $this->mataLabel;
+                $_columns[ $this->metaKey ] = $this->metaLabel;
 
                 return $_columns;
             }
@@ -355,6 +347,15 @@ final class PostTypeMeta {
     }
 
     private function quickEdit(): void {
+
+        if ( empty( $this->quickEditCallback ) ) {
+            return;
+        }
+
+        if ( ! \is_callable( $this->quickEditCallback ) ) {
+            return;
+        }
+
         add_action(
             'quick_edit_custom_box',
             function ( string $column_name, string $post_type, ?string $taxonomy ): void {
