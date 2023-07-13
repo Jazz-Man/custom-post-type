@@ -189,11 +189,9 @@ final class PostTypeMeta {
                 }
 
                 if ( ! empty( $this->capability ) ) {
-                    if ( \is_callable( $this->capability ) ) {
-                        $default['auth_callback'] = $this->capability;
-                    } else {
-                        $default['auth_callback'] = fn ( $false, $metaKey, $postID, $userId, $cap, $caps ): bool => current_user_can( $this->capability );
-                    }
+                    $default['auth_callback'] = \is_callable( $this->capability ) ?
+                        $this->capability :
+                        fn ( bool $allowed, string $metaKey, int $postID, int $userId, string $cap, array $caps ): bool => current_user_can( $this->capability );
                 }
 
                 register_post_meta( $this->postType, $this->metaKey, $default );
@@ -212,7 +210,7 @@ final class PostTypeMeta {
         $this->quickEdit();
     }
 
-    public static function quickEditField( #[ExpectedValues( values: ['textarea', 'text'] )] string $type, string $columnName, string $columnLabel, ?string $metaValue = null ): void {
+    public static function quickEditField( #[ExpectedValues( values: [ 'textarea', 'text' ] )] string $type, string $columnName, string $columnLabel, ?string $metaValue = null ): void {
         if ( 'textarea' === $type ) {
             printf(
                 '%s<label><span class="title">%s</span><span class="input-text-wrap"><textarea name="%s" class="inline-edit-menu-order-input">%s</textarea></span></label>%s',
