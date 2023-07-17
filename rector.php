@@ -23,7 +23,6 @@ return static function ( RectorConfig $config ): void {
     $config->removeUnusedImports();
     $config->importShortClasses( false );
 
-    $config->cacheDirectory( __DIR__.'/cache/rector' );
     $config->phpstanConfig( __DIR__.'/phpstan-rector.neon' );
 
     $config->paths( [
@@ -36,7 +35,6 @@ return static function ( RectorConfig $config ): void {
             // or fnmatch
             __DIR__.'/vendor',
             __DIR__.'/.github',
-            __DIR__.'/cache',
             __DIR__.'/rector.php',
             __DIR__.'/.php-cs-fixer.php',
             __DIR__.'/sample.php',

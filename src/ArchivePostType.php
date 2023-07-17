@@ -59,35 +59,32 @@ final class ArchivePostType implements AutoloadInterface {
             return $title;
         }
 
-        $add_archive_page = self::hasAddArchivePage( $object );
-
-        if ( ! $add_archive_page ) {
+        if ( ! self::hasAddArchivePage( $object ) ) {
             return $title;
         }
 
         $archivePost = self::getPostTypeArchive( $postType );
 
-        if ( $archivePost instanceof WP_Post ) {
-            return (string) apply_filters( 'the_title', $archivePost->post_title );
+        if ( ! $archivePost instanceof WP_Post ) {
+            return $title;
         }
 
-        return $title;
+        return (string) apply_filters( 'the_title', $archivePost->post_title );
     }
 
     private static function archiveDescription( string $description, WP_Post_Type $wpPostType ): string {
-        $add_archive_page = self::hasAddArchivePage( $wpPostType );
 
-        if ( ! $add_archive_page ) {
+        if ( ! self::hasAddArchivePage( $wpPostType ) ) {
             return $description;
         }
 
         $archivePost = self::getPostTypeArchive( $wpPostType->name );
 
-        if ( $archivePost instanceof WP_Post ) {
-            return (string) apply_filters( 'the_content', $archivePost->post_content );
+        if ( ! $archivePost instanceof WP_Post ) {
+            return $description;
         }
 
-        return $description;
+        return (string) apply_filters( 'the_content', $archivePost->post_content );
     }
 
     private static function addAdminMenuArchivePages(): void {
@@ -97,8 +94,8 @@ final class ArchivePostType implements AutoloadInterface {
             return;
         }
 
-        /** @var WP_Post[] $post_types */
-        $post_types = get_posts(
+        /** @var WP_Post[] $postTypes */
+        $postTypes = get_posts(
             [
                 'post_type' => self::ARCHIVE_POST_TYPE,
                 'post_status' => 'publish',
@@ -106,14 +103,14 @@ final class ArchivePostType implements AutoloadInterface {
             ]
         );
 
-        foreach ( $post_types as $post_type ) {
+        foreach ( $postTypes as $type ) {
             // add the menu item for this post type.
             add_submenu_page(
-                sprintf( 'edit.php?post_type=%s', esc_attr( $post_type->post_name ) ),
+                sprintf( 'edit.php?post_type=%s', esc_attr( $type->post_name ) ),
                 'Archive Page',
                 'Archive Page',
                 'edit_posts',
-                sprintf( sprintf( '%s&action=edit', $post_type_object->_edit_link ), $post_type->ID ),
+                sprintf( 'post.php?post=%d&action=edit', $type->ID ),
                 false
             );
         }
@@ -130,24 +127,32 @@ final class ArchivePostType implements AutoloadInterface {
     private static function adminMenuCorrection( string $parentFile = '' ): string {
         global $current_screen;
 
+        /** @var int|null $postId */
+        $postId = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
+
+        if ( ! $postId ) {
+            return $parentFile;
+        }
+
         if ( ! $current_screen instanceof WP_Screen ) {
             return $parentFile;
         }
 
-        /** @var int|null $postId */
-        $postId = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_NUMBER_INT );
-        // if this is a post edit screen for the archive page post type.
-        if ( ! empty( $postId ) && 'post' === $current_screen->base && self::ARCHIVE_POST_TYPE === $current_screen->post_type ) {
-			$post = get_post( $postId );
-
-            // if we have an archive post type returned.
-            if ( $post instanceof WP_Post ) {
-                // set the parent file to the archive post type.
-                $parentFile = sprintf( 'edit.php?post_type=%s', esc_attr( $post->post_name ) );
-            }
+        if ( 'post' !== $current_screen->base ) {
+            return $parentFile;
         }
 
-        return $parentFile;
+        if ( self::ARCHIVE_POST_TYPE !== $current_screen->post_type ) {
+            return $parentFile;
+        }
+
+        $post = get_post( $postId );
+
+        if ( ! $post instanceof WP_Post ) {
+            return $parentFile;
+        }
+
+        return sprintf( 'edit.php?post_type=%s', esc_attr( $post->post_name ) );
     }
 
     private static function createArchivePages( string $postType, WP_Post_Type $wpPostType ): void {
@@ -157,9 +162,7 @@ final class ArchivePostType implements AutoloadInterface {
             return;
         }
 
-        $add_archive_page = self::hasAddArchivePage( $wpPostType );
-
-        if ( ! $add_archive_page ) {
+        if ( ! self::hasAddArchivePage( $wpPostType ) ) {
             return;
         }
 
