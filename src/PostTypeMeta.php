@@ -184,7 +184,7 @@ final class PostTypeMeta {
                     $default['sanitize_callback'] = $this->sanitizeCallback;
                 }
 
-                if ( isset( $this->defaultValue ) ) {
+                if ( $this->defaultValue !== null ) {
                     $default['default'] = $this->defaultValue;
                 }
 
