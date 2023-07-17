@@ -2,7 +2,6 @@
 <psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://getpsalm.org/schema/config"
        xsi:schemaLocation="https://getpsalm.org/schema/config"
-       cacheDirectory="cache/psalm"
        serializer="igbinary"
        errorBaseline="psalm-baseline.xml"
        errorLevel="1"
@@ -14,16 +13,10 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="cache"/>
             <file name=".php-cs-fixer.php"/>
             <file name="sample.php"/>
         </ignoreFiles>
     </projectFiles>
-    <enableExtensions>
-        <extension name="apcu"/>
-        <extension name="random"/>
-        <extension name="redis"/>
-    </enableExtensions>
 
     <stubs>
         <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
@@ -36,4 +29,9 @@
         <var name="post_type" type="string|null"/>
         <var name="post_type_object" type="null|\WP_Post_Type"/>
     </globals>
+    <forbiddenFunctions>
+        <function name="var_dump" />
+        <function name="dump" />
+        <function name="dd" />
+    </forbiddenFunctions>
 </psalm>
