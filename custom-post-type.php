@@ -13,6 +13,7 @@
 
 use JazzMan\Post\ArchivePostType;
 use JazzMan\Post\PostTypeMessages;
+use JazzMan\Post\PostTypeMeta;
 use JazzMan\Post\ReusableBlocks;
 
 if ( function_exists( 'app_autoload_classes' ) ) {
@@ -21,4 +22,6 @@ if ( function_exists( 'app_autoload_classes' ) ) {
         ReusableBlocks::class,
         PostTypeMessages::class,
     ] );
+
+    PostTypeMeta::addInlineEditScript();
 }
