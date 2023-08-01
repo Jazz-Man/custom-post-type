@@ -4,6 +4,7 @@ namespace JazzMan\Post;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use WP_Post;
+use WP_Post_Type;
 
 final class PostTypeMeta {
 
@@ -84,6 +85,12 @@ final class PostTypeMeta {
     private string $capability = 'manage_options';
 
     public function __construct( private readonly string $postType, private string $metaKey ) {}
+
+    public static function addInlineEditScript(): void {
+        add_action( 'admin_enqueue_scripts', function (): void {
+            wp_enqueue_script( 'post-meta-inline-edit', plugin_dir_url( __DIR__ ).'js/admin.js', [ 'jquery', 'inline-edit-post' ] );
+        } );
+    }
 
     public function setQuickEditCallback( callable|string $quickEditCallback ): self {
         $this->quickEditCallback = $quickEditCallback;
@@ -184,7 +191,7 @@ final class PostTypeMeta {
                     $default['sanitize_callback'] = $this->sanitizeCallback;
                 }
 
-                if ( $this->defaultValue !== null ) {
+                if ( null !== $this->defaultValue ) {
                     $default['default'] = $this->defaultValue;
                 }
 
@@ -203,23 +210,21 @@ final class PostTypeMeta {
         $this->quickEdit();
     }
 
-    public static function quickEditField( #[ExpectedValues( values: [ 'textarea', 'text' ] )] string $type, string $columnName, string $columnLabel, ?string $metaValue = null ): void {
+    public static function quickEditField( #[ExpectedValues( values: [ 'textarea', 'text' ] )] string $type, string $columnName, string $columnLabel ): void {
         if ( 'textarea' === $type ) {
             printf(
-                '%s<label><span class="title">%s</span><span class="input-text-wrap"><textarea name="%s" class="inline-edit-menu-order-input">%s</textarea></span></label>%s',
+                '%s<label><span class="title">%s</span><span class="input-text-wrap"><textarea name="%s" class="inline-edit-post-input"></textarea></span></label>%s',
                 self::BEFORE,
                 $columnLabel,
                 $columnName,
-                empty( $metaValue ) ? '' : $metaValue,
                 self::AFTER
             );
         } elseif ( 'text' === $type ) {
             printf(
-                '%s<label><span class="title">%s</span><span class="input-text-wrap"><input type="text" name="%s" class="inline-edit-menu-order-input" value="%s"/></span></label>%s',
+                '%s<label><span class="title">%s</span><span class="input-text-wrap"><input type="text" name="%s" class="inline-edit-post-input" value=""/></span></label>%s',
                 self::BEFORE,
                 $columnLabel,
                 $columnName,
-                empty( $metaValue ) ? '' : $metaValue,
                 self::AFTER
             );
         }
@@ -309,7 +314,7 @@ final class PostTypeMeta {
 
         add_action(
             sprintf( 'manage_%s_posts_custom_column', $this->postType ),
-            function ( string $columnName ): void {
+            function ( string $columnName, $postID ): void {
                 global $post;
 
                 if ( ! $post instanceof WP_Post ) {
@@ -321,7 +326,9 @@ final class PostTypeMeta {
                 }
 
                 \call_user_func( $this->columnCallback, $columnName, $post );
-            }
+            },
+            10,
+            2
         );
 
         if ( $this->_isSortColumn ) {
@@ -356,16 +363,26 @@ final class PostTypeMeta {
             return;
         }
 
+        add_action( 'add_inline_data', function ( WP_Post $post, WP_Post_Type $post_type_object ): void {
+            if ( $post_type_object->name !== $this->postType ) {
+                return;
+            }
+
+            $meta = get_post_meta( $post->ID, $this->metaKey, true );
+
+            printf(
+                '<div class="quick-edit-custom-box %s" data-meta="%s">%s</div>',
+                $this->metaKey,
+                $this->metaKey,
+                $meta
+            );
+        }, 10, 2 );
+
         add_action(
             'quick_edit_custom_box',
             function ( string $column_name, string $post_type, ?string $taxonomy ): void {
-                global $post;
 
                 if ( $post_type !== $this->postType ) {
-                    return;
-                }
-
-                if ( ! $post instanceof WP_Post ) {
                     return;
                 }
 
@@ -373,7 +390,7 @@ final class PostTypeMeta {
                     return;
                 }
 
-                \call_user_func( $this->quickEditCallback, $column_name, $post, $taxonomy );
+                \call_user_func( $this->quickEditCallback, $column_name, $taxonomy );
             },
             10,
             3
