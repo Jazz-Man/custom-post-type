@@ -41,17 +41,11 @@
     </ArgumentTypeCoercion>
     <MixedArgumentTypeCoercion>
       <code>$options</code>
-      <code>$taxonomy</code>
     </MixedArgumentTypeCoercion>
     <MixedReturnTypeCoercion>
       <code><![CDATA[array<string,mixed>]]></code>
       <code>array_replace_recursive( $defaults, $options )</code>
     </MixedReturnTypeCoercion>
-    <PossiblyInvalidPropertyFetch>
-      <code><![CDATA[$object->labels]]></code>
-      <code><![CDATA[$object->query_var]]></code>
-      <code><![CDATA[$object->show_admin_column]]></code>
-    </PossiblyInvalidPropertyFetch>
   </file>
   <file src="src/PostTypeMessages.php">
     <MixedArgumentTypeCoercion>
@@ -61,21 +55,13 @@
     </MixedArgumentTypeCoercion>
   </file>
   <file src="src/PostTypeMeta.php">
-    <InvalidArgument>
-      <code><![CDATA[[
-                'alt' => $post->post_title,
-            ]]]></code>
-    </InvalidArgument>
     <MixedAssignment>
       <code><![CDATA[$default['default']]]></code>
     </MixedAssignment>
     <NoValue>
       <code>$column</code>
     </NoValue>
-    <PossiblyNullFunctionCall>
-      <code><![CDATA[\call_user_func( $this->columnCallback, $columnName, $post )]]></code>
-      <code><![CDATA[\call_user_func( $this->quickEditCallback, $column_name, $post, $taxonomy )]]></code>
-    </PossiblyNullFunctionCall>
+    <PossiblyNullFunctionCall/>
     <UnusedClosureParam>
       <code>$allowed</code>
       <code>$cap</code>
