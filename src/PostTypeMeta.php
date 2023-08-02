@@ -59,17 +59,17 @@ final class PostTypeMeta {
     /**
      * @var callable|string|null
      */
-    private $quickEditCallback;
+    private mixed $quickEditCallback = null;
 
     /**
-     * @var callable|string|null
+     * @var callable|string
      */
-    private $columnCallback;
+    private mixed $columnCallback = null;
 
     /**
      * @var string|callable|null
      */
-    private $sortCallback;
+    private mixed $sortCallback = null;
 
     private mixed $defaultValue = null;
 
@@ -80,14 +80,14 @@ final class PostTypeMeta {
     /**
      * @var callable|string|null
      */
-    private $sanitizeCallback;
+    private mixed $sanitizeCallback = null;
 
     private string $capability = 'manage_options';
 
     public function __construct( private readonly string $postType, private string $metaKey ) {}
 
     public static function addInlineEditScript(): void {
-        add_action( 'admin_enqueue_scripts', function (): void {
+        add_action( 'admin_enqueue_scripts', static function (): void {
             wp_enqueue_script( 'post-meta-inline-edit', plugin_dir_url( __DIR__ ).'js/admin.js', [ 'jquery', 'inline-edit-post' ] );
         } );
     }
@@ -98,7 +98,7 @@ final class PostTypeMeta {
         return $this;
     }
 
-    public function setColumnCallback( callable|string|null $columnCallback ): self {
+    public function setColumnCallback( callable|string $columnCallback ): self {
         $this->columnCallback = $columnCallback;
 
         return $this;
@@ -187,7 +187,7 @@ final class PostTypeMeta {
                     $default['description'] = $this->metaDescription;
                 }
 
-                if ( ! empty( $this->sanitizeCallback ) && \is_callable( $this->sanitizeCallback ) ) {
+                if ( \is_callable( $this->sanitizeCallback ) ) {
                     $default['sanitize_callback'] = $this->sanitizeCallback;
                 }
 
@@ -275,6 +275,7 @@ final class PostTypeMeta {
         $img_html = wp_get_attachment_image(
             $imageId,
             [ 60, 60 ],
+            false,
             [
                 'alt' => $post->post_title,
             ]
@@ -295,10 +296,6 @@ final class PostTypeMeta {
             return;
         }
 
-        if ( empty( $this->columnCallback ) ) {
-            return;
-        }
-
         if ( ! \is_callable( $this->columnCallback ) ) {
             return;
         }
@@ -314,8 +311,8 @@ final class PostTypeMeta {
 
         add_action(
             sprintf( 'manage_%s_posts_custom_column', $this->postType ),
-            function ( string $columnName, $postID ): void {
-                global $post;
+            function ( string $columnName, int $postID ): void {
+                $post = get_post( $postID );
 
                 if ( ! $post instanceof WP_Post ) {
                     return;
@@ -341,10 +338,6 @@ final class PostTypeMeta {
                 }
             );
 
-            if ( empty( $this->sortCallback ) ) {
-                return;
-            }
-
             if ( ! \is_callable( $this->sortCallback ) ) {
                 return;
             }
@@ -355,10 +348,6 @@ final class PostTypeMeta {
 
     private function quickEdit(): void {
 
-        if ( empty( $this->quickEditCallback ) ) {
-            return;
-        }
-
         if ( ! \is_callable( $this->quickEditCallback ) ) {
             return;
         }
@@ -368,7 +357,12 @@ final class PostTypeMeta {
                 return;
             }
 
+            /** @var string|null $meta */
             $meta = get_post_meta( $post->ID, $this->metaKey, true );
+
+            if ( empty( $meta ) ) {
+                return;
+            }
 
             printf(
                 '<div class="quick-edit-custom-box %s" data-meta="%s">%s</div>',
@@ -380,17 +374,17 @@ final class PostTypeMeta {
 
         add_action(
             'quick_edit_custom_box',
-            function ( string $column_name, string $post_type, ?string $taxonomy ): void {
+            function ( string $columnName, string $postType, ?string $taxonomy ): void {
 
-                if ( $post_type !== $this->postType ) {
+                if ( $postType !== $this->postType ) {
                     return;
                 }
 
-                if ( $column_name !== $this->metaKey ) {
+                if ( $columnName !== $this->metaKey ) {
                     return;
                 }
 
-                \call_user_func( $this->quickEditCallback, $column_name, $taxonomy );
+                \call_user_func( $this->quickEditCallback, $columnName, $taxonomy );
             },
             10,
             3

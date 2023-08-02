@@ -21,11 +21,11 @@ parameters:
 			path: src/CustomPostType.php
 
 		-
-			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string\\|null given\\.$#"
-			count: 2
+			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string given\\.$#"
+			count: 1
 			path: src/PostTypeMeta.php
 
 		-
-			message: "#^Parameter \\#3 \\$icon of function wp_get_attachment_image expects bool, array\\<string, string\\> given\\.$#"
+			message: "#^Parameter \\#1 \\$callback of function call_user_func expects callable\\(\\)\\: mixed, \\(callable\\(\\)\\: mixed\\)\\|string\\|null given\\.$#"
 			count: 1
 			path: src/PostTypeMeta.php

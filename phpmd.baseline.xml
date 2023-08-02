@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="src/CustomPostType.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/PostTypeMeta.php"/>
   <violation rule="PHPMD\Rule\Controversial\Superglobals" file="src/PostTypeMeta.php" method="quickEdit"/>
   <violation rule="PHPMD\Rule\Controversial\CamelCaseParameterName" file="src/helper.php"/>
 </phpmd-baseline>
